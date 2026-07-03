@@ -1,5 +1,15 @@
 #!/bin/sh
 
+# Load X resources
+if [ -f "$HOME/.Xresources" ]; then
+    xrdb -merge "$HOME/.Xresources"
+fi
+
+# Source .xprofile
+if [ -f "$HOME/.xprofile" ]; then
+    . "$HOME/.xprofile"
+fi
+
 # Obtener secretos de ~/.obfuscate
 get_secret() {
     [ -f "$HOME/.obfuscate" ] && sed -n "${1}p" "$HOME/.obfuscate"
@@ -57,10 +67,10 @@ if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
 	# 2. Si está conectado por USB, validar si ADB ya lo reconoce
 	if adb devices | grep -v 'List of devices' | grep -q 'device'; then
             echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
-            scrcpy -d || adb kill-server && adb start-server
+            LD_PRELOAD=/home/user/lib/sdl_cursor_hook.so scrcpy -d || adb kill-server && adb start-server
 	else
             echo '[ADB] Celular detectado por USB, pero no por ADB. Reiniciando servidor...'
-            adb kill-server && adb start-server && scrcpy -d || killall scrcpy
+            adb kill-server && adb start-server && LD_PRELOAD=/home/user/lib/sdl_cursor_hook.so scrcpy -d || killall scrcpy
 	fi
 	sleep 0.5
     done &
