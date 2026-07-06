@@ -594,7 +594,8 @@ EOF
 	    sleep 0.7 && xdotool click 3 &
 	    sleep 0.8 && xset r rate 150 110 &
 	    sleep 0.9 && feh --bg-scale $HOME/monoliths-hm/white-background.png &
-	    exec emwm
+	    # exec emwm
+            exec gnome-session
 	    '
 	;;
     76|Emacs_$Laptop)

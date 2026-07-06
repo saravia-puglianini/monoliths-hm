@@ -47,10 +47,10 @@ CURRENT_TTY=$(tty)
 NOGUI=false
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     # MIXEDCOLOR=''
-    while true; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
-    while true; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
+    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
+    while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
     sleep 2
-    while true; do
+    while [ -f /usr/bin/google-chrome-stable ]; do
         if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
             google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
         fi
@@ -74,7 +74,7 @@ if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
 	fi
 	sleep 0.5
     done &
-    while true; do '/opt/Antigravity IDE/antigravity-ide' ~/app-asociados-android; sleep 0.1; done &
+    while [ -f '/opt/Antigravity IDE/antigravity-ide' ]; do '/opt/Antigravity IDE/antigravity-ide' ~/app-asociados-android; sleep 0.1; done &
 elif [ "$CURRENT_TTY" = "/dev/tty2" ]; then
     sleep 1 && gromit-mpx &
     sleep 3 && chromium-native --app=https://gmail.com &
@@ -82,9 +82,9 @@ elif [ "$CURRENT_TTY" = "/dev/tty2" ]; then
     sleep 3 && chromium-native --app=http://localhost:5173 &
 elif [ "$CURRENT_TTY" = "/dev/tty3" ]; then
     sleep 1 && dash ~/literatura/message_img.sh 'Literatura desde cualquier idioma al español' &
-    sleep 1 && cd ~/literatura; while true; do dash literatura.sh; done &
+    sleep 1 && cd ~/literatura; while [ -f literatura.sh ]; do dash literatura.sh; done &
     if [ ! -f /tmp/clock_is_run_already.pid ]; then
-        while true; do
+        while [ -f $HOME/monoliths-hm/optime.personal_osdx.sh ]; do
             if [ ! -f $HOME/.stop_personal_osdx ]; then
                 touch /tmp/clock_is_run_already.pid
                 dash $HOME/monoliths-hm/optime.personal_osdx.sh
@@ -96,8 +96,8 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && dash ~/literatura/message_img.sh 'Literatura desde cualquier idioma al alemán' &
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
-    while true; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
-    while true; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
+    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
+    while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
 fi
 pgrep xbindkeys | xargs kill
 sleep 0.1
@@ -155,7 +155,7 @@ else
     fi
 fi
 
-while true; do  sleep 1; st; done &
+while [ -f /usr/bin/st ]; do  sleep 1; st; done &
 
 if ! $NOGUI; then
     exec openbox-session
