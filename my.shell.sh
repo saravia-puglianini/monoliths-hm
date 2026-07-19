@@ -92,6 +92,7 @@ if [ -z "$PARAM" ]; then
     echo '83) Google_Chrome_No_Inhibit - Mantener tty encendida'
     echo '84) Firefox_Tmp - Firefox tmp'
     echo '85) Bluetooth - Blueman Manager'
+    echo '86) Loopback - Select Loopback audio'
     echo ''
 fi
 
@@ -571,31 +572,42 @@ EOF
 	tmpfolder='/tmp/chromium-new-profile-tmp'; mkdir -p "$tmpfolder" && google-chrome-stable --user-data-dir="$tmpfolder" --app=http://localhost:4200 &
 	;;
     75|Emwm_$Laptop)
-	# 1. Limpiar procesos anteriores
+	# 1. Asegurar que Xephyr sabe dónde abrirse localmente (tu pantalla principal)
+	export DISPLAY=:0
+
+	# 2. Limpiar procesos anteriores
 	killall Xephyr 2>/dev/null
 
-	# 2. Iniciar Xephyr en el display :9
+	# 3. Iniciar Xephyr en el display :9 (ahora sí se abrirá encima de tu display :0)
 	Xephyr :9 -br -ac -noreset -screen 1280x700 &
 
-	# 3. Esperar a que inicialice
+	# 4. Esperar a que inicialice
 	sleep 1
 
-	# 4. FORZAR a todo el script a usar el display de Xephyr
+	# 5. FORZAR a todo lo que viene abajo (SSH) a usar el nuevo display de Xephyr
 	export DISPLAY=:9
+	xhost +SI:localuser:$(whoami) >/dev/null 2>&1
 
 	# 5. Conectar por SSH ejecutando tu secuencia de arranque
-	ssh \
+	sshpass -f $HOME/.pass ssh \
 	    -o ControlMaster=no \
 	    -o ControlPath=none \
-	    -S none -Y $(cat $HOME/.asdf)@$(cat $HOME/.fdsa) '
+	    -o StrictHostKeyChecking=no \
+	    -o UserKnownHostsFile=/dev/null \
+	    -o PubkeyAuthentication=no \
+	    -o PasswordAuthentication=yes \
+	    -Y \
+	    -R 6009:localhost:6009 \
+	    -S none $(cat $HOME/.asdf)@$(cat $HOME/.fdsa) '
 	    sleep 0.4 && setxkbmap latam &
 	    sleep 0.5 && emacs -mm &
-	    sleep 0.6 && xbindkeys &
-	    sleep 0.7 && xdotool click 3 &
-	    sleep 0.8 && xset r rate 150 110 &
-	    sleep 0.9 && feh --bg-scale $HOME/monoliths-hm/white-background.png &
+	    #sleep 0.6 && xbindkeys &
+	    #sleep 0.7 && xdotool click 3 &
+	    #sleep 0.8 && xset r rate 150 110 &
+	    #sleep 0.9 && feh --bg-scale $HOME/monoliths-hm/white-background.png &
+	    exec openbox-session
 	    # exec emwm
-            exec gnome-session
+	    # exec gnome-session
 	    '
 	;;
     76|Emacs_$Laptop)
@@ -642,6 +654,10 @@ EOF
 	;;
     85|Bluetooth)
         blueman-applet & sleep 1 && blueman-manager &
+	;;
+    86|Loopback)
+	pavucontrol &
+	bash $HOME/monoliths-llm/loopback-yad.sh &
 	;;
     *)
 	echo 'Opción no mapeada.'

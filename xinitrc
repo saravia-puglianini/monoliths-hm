@@ -45,14 +45,34 @@ fi
 CURRENT_TTY=$(tty)
 # 4. Lanzar aplicaciones de trabajo (con & para que no bloqueen el inicio)
 NOGUI=false
+
+# Ahorro de energía: si no está conectado a la corriente, ejecutar únicamente emacs y menú yad (con gestor de ventanas)
+if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_supply/ADP1/online)" = "0" ]; then
+    if [ -f /usr/bin/emacs ]; then
+	echo deep | doas tee /sys/power/mem_sleep &
+	echo XHCI | doas tee /proc/acpi/wakeup &
+	echo TXHC | doas tee /proc/acpi/wakeup &
+	echo 1 | doas tee /sys/devices/system/cpu/intel_pstate/no_turbo &
+	echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
+        emacs -mm --debug-init &
+    fi
+    if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
+        while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
+    fi
+    exec openbox-session
+fi
+
+doas /home/user/monoliths-llm/gaming-mode.sh
+
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
-    # MIXEDCOLOR=''
+    MIXEDCOLOR=''
     while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
     while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
     sleep 2
     while [ -f /usr/bin/google-chrome-stable ]; do
         if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
-            google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
+	    google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization &
+            # google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
         fi
         sleep 0.5
     done &
