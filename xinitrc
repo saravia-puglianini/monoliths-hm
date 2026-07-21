@@ -19,6 +19,87 @@ setxkbmap latam
 xset r rate 150 110
 feh --bg-scale $HOME/monoliths-hm/white-background.png &
 
+# Alerta de batería baja por la mañana (entre 8:55 AM y 9:55 AM) si no está conectado a la corriente
+(
+    # Esperar un poco a que el sistema de sonido esté listo
+    sleep 3
+    
+    H=$(date +%-H)
+    M=$(date +%-M)
+    
+    IN_RANGE=false
+    if [ "$H" -eq 8 ] && [ "$M" -ge 55 ]; then
+        IN_RANGE=true
+    elif [ "$H" -eq 9 ] && [ "$M" -le 55 ]; then
+        IN_RANGE=true
+    fi
+    
+    if $IN_RANGE; then
+        # Verificar si no está conectado a la corriente (online == 0)
+        if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_supply/ADP1/online)" = "0" ]; then
+            # Obtener datos de batería
+            if [ -f /sys/class/power_supply/BAT0/charge_now ] && [ -f /sys/class/power_supply/BAT0/current_now ]; then
+                CHARGE=$(cat /sys/class/power_supply/BAT0/charge_now)
+                CURRENT=$(cat /sys/class/power_supply/BAT0/current_now)
+                if [ "$CURRENT" -gt 0 ]; then
+                    MINUTES=$(( (CHARGE * 60) / CURRENT ))
+                    HOURS=$(( MINUTES / 60 ))
+                    MINS=$(( MINUTES % 60 ))
+                    
+                    # Formatear horas y minutos en español
+                    if [ "$HOURS" -eq 1 ]; then
+                        TXT_HOURS="1 hora"
+                    else
+                        TXT_HOURS="$HOURS horas"
+                    fi
+                    
+                    if [ "$MINS" -eq 1 ]; then
+                        TXT_MINUTES="1 minuto"
+                    else
+                        TXT_MINUTES="$MINS minutos"
+                    fi
+                    
+                    BAT_STR="Tengo $TXT_HOURS y $TXT_MINUTES de tiempo de batería"
+                else
+                    BAT_STR="Tengo batería restante pero no puedo calcular el tiempo"
+                fi
+            else
+                BAT_STR="Batería desconectada de la corriente"
+            fi
+            
+            # Obtener fecha y hora en español
+            DAY=$(date +%A)
+            DAY="$(echo ${DAY} | awk '{print toupper(substr($0,1,1))tolower(substr($0,2))}')"
+            MONTH=$(date +%B)
+            MONTH="$(echo ${MONTH} | awk '{print toupper(substr($0,1,1))tolower(substr($0,2))}')"
+            DOM=$(date +%-d)
+            YEAR=$(date +%Y)
+            
+            # Formatear la hora
+            HR=$(date +%-I)
+            if [ "$M" -eq 0 ]; then
+                MIN_STR="en punto"
+            elif [ "$M" -eq 1 ]; then
+                MIN_STR="con 1 minuto"
+            else
+                MIN_STR="con $M minutos"
+            fi
+            
+            if [ "$HR" -eq 1 ]; then
+                ES_SON="Es la"
+            else
+                ES_SON="Son las"
+            fi
+            
+            TEXT_TO_SPEAK="$ES_SON $HR de la mañana $MIN_STR, $DAY $DOM de $MONTH del $YEAR... $BAT_STR"
+            
+            # Generar y reproducir audio con Piper (voz de Claude en español de México)
+            echo "$TEXT_TO_SPEAK" | /home/user/piper/piper --model /home/user/piper/es_MX-claude-high.onnx --output_file /tmp/power_alert.wav >/dev/null 2>&1
+            /usr/bin/mpv --volume=80 --no-terminal --quiet /tmp/power_alert.wav >/dev/null 2>&1
+        fi
+    fi
+) &
+
 # 3. Calibración y apps de inicio
 (sleep 0.5 && xcalib -i -a && touch /tmp/_xcalib_working) &
 
@@ -29,22 +110,26 @@ fi
 # touchpad :
 # Nombre exacto del dispositivo según xinput list
 DEVICE="ELAN0791:00 04F3:30FD Touchpad"
-# Obtenemos el estado actual del dispositivo (1 = encendido, 0 = apagado)
-# Usamos awk para extraer el último valor de la línea "Device Enabled"
-STATE=$(xinput list-props "$DEVICE" | grep "Device Enabled" | awk '{print $NF}')
-# Evaluamos el estado y lo cambiamos
-if [ "$STATE" = "1" ]; then
-    xinput disable "$DEVICE"
-    echo "Touchpad desactivado."
-elif [ "$STATE" = "0" ]; then
-    xinput enable "$DEVICE"
-    echo "Touchpad activado."
+if xinput list --name-only 2>/dev/null | grep -qxF "$DEVICE"; then
+    # Obtenemos el estado actual del dispositivo (1 = encendido, 0 = apagado)
+    STATE=$(xinput list-props "$DEVICE" | grep "Device Enabled" | awk '{print $NF}')
+    if [ "$STATE" = "1" ]; then
+        xinput disable "$DEVICE"
+        echo "Touchpad desactivado."
+    elif [ "$STATE" = "0" ]; then
+        xinput enable "$DEVICE"
+        echo "Touchpad activado."
+    fi
 else
-    echo "Error: No se pudo determinar el estado actual del touchpad."
+    echo "Dispositivo touchpad '$DEVICE' no encontrado en el sistema."
 fi
 CURRENT_TTY=$(tty)
 # 4. Lanzar aplicaciones de trabajo (con & para que no bloqueen el inicio)
 NOGUI=false
+
+pgrep xbindkeys | xargs kill
+sleep 0.1
+sleep 1.5 && xbindkeys &
 
 # Ahorro de energía: si no está conectado a la corriente, ejecutar únicamente emacs y menú yad (con gestor de ventanas)
 if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_supply/ADP1/online)" = "0" ]; then
@@ -57,7 +142,7 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
         emacs -mm --debug-init &
     fi
     if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
-        while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
+        while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
     fi
     exec openbox-session
 fi
@@ -67,14 +152,14 @@ doas /home/user/monoliths-llm/gaming-mode.sh
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
     while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
-    while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
+    while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
     sleep 2
     while [ -f /usr/bin/google-chrome-stable ]; do
         if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
 	    google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization &
             # google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
         fi
-        sleep 0.5
+        sleep 4
     done &
     while ! pgrep scrcpy > /dev/null; do
 	# 1. Validar si el celular está conectado físicamente al puerto USB
@@ -94,7 +179,7 @@ if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
 	fi
 	sleep 0.5
     done &
-    while [ -f '/opt/Antigravity IDE/antigravity-ide' ]; do '/opt/Antigravity IDE/antigravity-ide' ~/app-asociados-android; sleep 0.1; done &
+    while [ -f '/opt/Antigravity-IDE/antigravity-ide' ]; do '/opt/Antigravity-IDE/antigravity-ide' ~/app-asociados-android; sleep 2; done &
 elif [ "$CURRENT_TTY" = "/dev/tty2" ]; then
     sleep 1 && gromit-mpx &
     sleep 3 && chromium-native --app=https://gmail.com &
@@ -117,11 +202,8 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
     while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
-    while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 0.1; done &
+    while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
 fi
-pgrep xbindkeys | xargs kill
-sleep 0.1
-sleep 1.5 && xbindkeys &
 
 # exec start-lumina-desktop
 if doas dmesg | grep -q ZenBook > /dev/null; then
