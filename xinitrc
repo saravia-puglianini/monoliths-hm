@@ -19,24 +19,80 @@ setxkbmap latam
 xset r rate 150 110
 feh --bg-scale $HOME/monoliths-hm/white-background.png &
 
-# Alerta de batería baja por la mañana (entre 8:55 AM y 9:55 AM) si no está conectado a la corriente
+if doas dmesg | grep -q ZenBook > /dev/null && uname -r | grep '5.10' > /dev/null; then
+    doas modprobe -r snd_hda_intel; sleep 0.5 && doas modprobe snd_hda_intel; sleep 0.5 && amixer sset Master unmute; sleep 0.5 && amixer sset Master 50% &
+else
+    amixer sset Master 80%
+fi
+
+if grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+    doas /home/user/.type-to-move-cursor/setup_keymap.sh &
+fi
+
+# Registrar estado de batería inicial para bat.sh (cálculo de precisión)
+(
+    BAT_PATH="/sys/class/power_supply/BAT0"
+    if [ ! -d "$BAT_PATH" ]; then
+        BAT_PATH=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null | head -n 1)
+    fi
+    if [ -n "$BAT_PATH" ] && [ -f "$BAT_PATH/capacity" ]; then
+        CAP=$(cat "$BAT_PATH/capacity")
+        echo "$(date +%s) $CAP" > /tmp/bat.sh.log
+    fi
+) &
+
+# Alerta de batería baja por la mañana (entre 8:55 AM y 9:55 AM) si no está conectado a la corrient
 (
     # Esperar un poco a que el sistema de sonido esté listo
-    sleep 3
+    sleep 4
     
     H=$(date +%-H)
     M=$(date +%-M)
     
     IN_RANGE=false
-    if [ "$H" -eq 8 ] && [ "$M" -ge 55 ]; then
+    if [ "$H" -eq 4 ]; then
         IN_RANGE=true
-    elif [ "$H" -eq 9 ] && [ "$M" -le 55 ]; then
+    elif [ "$H" -eq 5 ]; then
         IN_RANGE=true
+    elif [ "$H" -eq 6 ]; then
+        IN_RANGE=true
+    elif [ "$H" -eq 7 ]; then
+        IN_RANGE=true
+    elif [ "$H" -eq 8 ]; then
+        IN_RANGE=true
+    elif [ "$H" -eq 9 ]; then
+        IN_RANGE=true
+    elif [ "$H" -eq 13 ]; then
+	IN_RANGE=true
+    elif [ "$H" -eq 18 ]; then
+	IN_RANGE=true
+    elif [ "$H" -eq 19 ]; then
+	IN_RANGE=true
+    elif [ "$H" -eq 20 ]; then
+	IN_RANGE=true
+    elif [ "$H" -eq 21 ]; then
+	IN_RANGE=true
+    elif [ "$H" -eq 22 ]; then
+	IN_RANGE=true
+    elif [ "$H" -eq 23 ]; then
+	IN_RANGE=true
     fi
     
     if $IN_RANGE; then
-        # Verificar si no está conectado a la corriente (online == 0)
-        if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_supply/ADP1/online)" = "0" ]; then
+        # Verificar estado de corriente y batería
+        IS_ONLINE=0
+        if [ -f /sys/class/power_supply/ADP1/online ]; then
+            IS_ONLINE=$(cat /sys/class/power_supply/ADP1/online)
+        fi
+
+        if [ "$IS_ONLINE" = "1" ]; then
+            if [ -f /sys/class/power_supply/BAT0/capacity ]; then
+                CAPACITY=$(cat /sys/class/power_supply/BAT0/capacity)
+                BAT_STR="conectado a la corriente al $CAPACITY por ciento de batería cargada"
+            else
+                BAT_STR="conectado a la corriente"
+            fi
+        else
             # Obtener datos de batería
             if [ -f /sys/class/power_supply/BAT0/charge_now ] && [ -f /sys/class/power_supply/BAT0/current_now ]; then
                 CHARGE=$(cat /sys/class/power_supply/BAT0/charge_now)
@@ -66,37 +122,50 @@ feh --bg-scale $HOME/monoliths-hm/white-background.png &
             else
                 BAT_STR="Batería desconectada de la corriente"
             fi
-            
-            # Obtener fecha y hora en español
-            DAY=$(date +%A)
-            DAY="$(echo ${DAY} | awk '{print toupper(substr($0,1,1))tolower(substr($0,2))}')"
-            MONTH=$(date +%B)
-            MONTH="$(echo ${MONTH} | awk '{print toupper(substr($0,1,1))tolower(substr($0,2))}')"
-            DOM=$(date +%-d)
-            YEAR=$(date +%Y)
-            
-            # Formatear la hora
-            HR=$(date +%-I)
-            if [ "$M" -eq 0 ]; then
-                MIN_STR="en punto"
-            elif [ "$M" -eq 1 ]; then
-                MIN_STR="con 1 minuto"
-            else
-                MIN_STR="con $M minutos"
-            fi
-            
-            if [ "$HR" -eq 1 ]; then
-                ES_SON="Es la"
-            else
-                ES_SON="Son las"
-            fi
-            
-            TEXT_TO_SPEAK="$ES_SON $HR de la mañana $MIN_STR, $DAY $DOM de $MONTH del $YEAR... $BAT_STR"
-            
-            # Generar y reproducir audio con Piper (voz de Claude en español de México)
-            echo "$TEXT_TO_SPEAK" | /home/user/piper/piper --model /home/user/piper/es_MX-claude-high.onnx --output_file /tmp/power_alert.wav >/dev/null 2>&1
-            /usr/bin/mpv --volume=80 --no-terminal --quiet /tmp/power_alert.wav >/dev/null 2>&1
         fi
+        
+        # Obtener fecha y hora en español
+        DAY=$(date +%A)
+        DAY="$(echo ${DAY} | awk '{print toupper(substr($0,1,1))tolower(substr($0,2))}')"
+        MONTH=$(date +%B)
+        MONTH="$(echo ${MONTH} | awk '{print toupper(substr($0,1,1))tolower(substr($0,2))}')"
+        DOM=$(date +%-d)
+        YEAR=$(date +%Y)
+        
+        # Determinar el período (mañana, tarde o noche)
+        if [ "$H" -ge 18 ]; then
+            PERIODO="de la noche"
+        elif [ "$H" -ge 12 ]; then
+            PERIODO="de la tarde"
+        else
+            PERIODO="de la mañana"
+        fi
+
+        # Formatear la hora
+        HR=$(date +%-I)
+        if [ "$M" -eq 0 ]; then
+            MIN_STR="en punto"
+        elif [ "$M" -eq 1 ]; then
+            MIN_STR="y un minuto"
+        else
+            MIN_STR="y $M"
+        fi
+        
+        if [ "$HR" -eq 1 ]; then
+            ES_SON="Es la"
+        else
+            ES_SON="Son las"
+        fi
+        
+        if [ "$M" -eq 0 ]; then
+            TEXT_TO_SPEAK="$ES_SON $HR $PERIODO en punto, $DAY $DOM de $MONTH del $YEAR... $BAT_STR... Repito, $ES_SON $HR $PERIODO en punto"
+        else
+            TEXT_TO_SPEAK="$ES_SON $HR $MIN_STR $PERIODO, $DAY $DOM de $MONTH del $YEAR... $BAT_STR... Repito, $ES_SON $HR $MIN_STR $PERIODO"
+        fi
+        
+        # Generar y reproducir audio con Piper (voz de Claude en español de México)
+        echo "$TEXT_TO_SPEAK" | /home/user/piper/piper --model /home/user/piper/es_MX-claude-high.onnx --output_file /tmp/power_alert.wav >/dev/null 2>&1
+        /usr/bin/mpv --volume=80 --no-terminal --quiet /tmp/power_alert.wav >/dev/null 2>&1
     fi
 ) &
 
@@ -139,24 +208,28 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
 	echo TXHC | doas tee /proc/acpi/wakeup &
 	echo 1 | doas tee /sys/devices/system/cpu/intel_pstate/no_turbo &
 	echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
-        emacs -mm --debug-init &
+        sleep 4 && emacs -mm --debug-init &
     fi
     if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
         while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
     fi
-    exec openbox-session
+    exec openbox-session # & sleep 15s && doas pgrep X | xargs kill
 fi
 
 doas /home/user/monoliths-llm/gaming-mode.sh
 
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
-    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
+    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init; done &
     while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
     sleep 2
     while [ -f /usr/bin/google-chrome-stable ]; do
         if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
-	    google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization &
+            if doas dmesg | grep -q ZenBook > /dev/null; then
+                google-chrome-stable &
+            else
+                google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization &
+            fi
             # google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
         fi
         sleep 4
@@ -201,7 +274,7 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && dash ~/literatura/message_img.sh 'Literatura desde cualquier idioma al alemán' &
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
-    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init; done &
+    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init; done &
     while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
 fi
 
@@ -260,5 +333,5 @@ fi
 while [ -f /usr/bin/st ]; do  sleep 1; st; done &
 
 if ! $NOGUI; then
-    exec openbox-session
+    exec openbox-session # & sleep 15s && doas pgrep X | xargs kill
 fi
