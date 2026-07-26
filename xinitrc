@@ -16,6 +16,7 @@ get_secret() {
 }
 
 setxkbmap latam
+xsetroot -cursor_name left_ptr
 xset r rate 150 110
 feh --bg-scale $HOME/monoliths-hm/white-background.png &
 
@@ -68,14 +69,14 @@ fi
 	IN_RANGE=true
     elif [ "$H" -eq 19 ]; then
 	IN_RANGE=true
-    elif [ "$H" -eq 20 ]; then
-	IN_RANGE=true
-    elif [ "$H" -eq 21 ]; then
-	IN_RANGE=true
-    elif [ "$H" -eq 22 ]; then
-	IN_RANGE=true
-    elif [ "$H" -eq 23 ]; then
-	IN_RANGE=true
+    # elif [ "$H" -eq 20 ]; then
+    # 	IN_RANGE=true
+    # elif [ "$H" -eq 21 ]; then
+    # 	IN_RANGE=true
+    # elif [ "$H" -eq 22 ]; then
+    # 	IN_RANGE=true
+    # elif [ "$H" -eq 23 ]; then
+    # 	IN_RANGE=true
     fi
     
     if $IN_RANGE; then
@@ -211,9 +212,9 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
         sleep 4 && emacs -mm --debug-init &
     fi
     if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
-        while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
+        ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
     fi
-    exec openbox-session # & sleep 15s && doas pgrep X | xargs kill
+    exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
 fi
 
 doas /home/user/monoliths-llm/gaming-mode.sh
@@ -221,17 +222,17 @@ doas /home/user/monoliths-llm/gaming-mode.sh
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
     while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init; done &
-    while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
+    ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
     sleep 2
     while [ -f /usr/bin/google-chrome-stable ]; do
-        if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
-            if doas dmesg | grep -q ZenBook > /dev/null; then
-                google-chrome-stable &
-            else
-                google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization &
-            fi
-            # google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
+        # if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
+        if doas dmesg | grep -q ZenBook > /dev/null; then
+            google-chrome-stable
+        else
+            google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization
         fi
+        # google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
+	# fi
         sleep 4
     done &
     while ! pgrep scrcpy > /dev/null; do
@@ -275,7 +276,7 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
     while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init; done &
-    while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done &
+    ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
 fi
 
 # exec start-lumina-desktop
@@ -293,7 +294,7 @@ else
 	# 1. Iniciar input-leap en segundo plano (como demonio con config)
 	input-leap &
 
-	# 2. Cuenta regresiva y xdotool en segundo plano para no bloquear Openbox
+	# 2. Cuenta regresiva y xdotool en segundo plano para no bloquear Alt_Tab_Maximize_Only
 	(
             (
 		i=$TIEMPO_ESPERA
@@ -333,5 +334,5 @@ fi
 while [ -f /usr/bin/st ]; do  sleep 1; st; done &
 
 if ! $NOGUI; then
-    exec openbox-session # & sleep 15s && doas pgrep X | xargs kill
+    exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
 fi
