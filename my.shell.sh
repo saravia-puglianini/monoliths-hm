@@ -93,6 +93,8 @@ if [ -z "$PARAM" ]; then
     echo '84) Firefox_Tmp - Firefox tmp'
     echo '85) Bluetooth - Blueman Manager'
     echo '86) Loopback - Select Loopback audio'
+    echo '87) JBL - audifinos'
+    echo '88) SOF - internal sound'
     echo ''
 fi
 
@@ -658,6 +660,12 @@ EOF
     86|Loopback)
 	pavucontrol &
 	bash $HOME/monoliths-llm/loopback-yad.sh &
+	;;
+    87|JBL)
+	bash $HOME/monoliths-llm/JBL-Quantum350-wireless.sh
+	;;
+    88|SOF)
+	bash $HOME/monoliths-llm/sof-snd-dsp.sh
 	;;
     *)
 	echo 'Opción no mapeada.'

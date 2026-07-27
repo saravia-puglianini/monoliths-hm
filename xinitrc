@@ -21,9 +21,10 @@ xset r rate 150 110
 feh --bg-scale $HOME/monoliths-hm/white-background.png &
 
 if doas dmesg | grep -q ZenBook > /dev/null && uname -r | grep '5.10' > /dev/null; then
-    doas modprobe -r snd_hda_intel; sleep 0.5 && doas modprobe snd_hda_intel; sleep 0.5 && amixer sset Master unmute; sleep 0.5 && amixer sset Master 50% &
+    bash $HOME/monoliths-llm/sof-snd-dsp.sh
+    sleep 0.5 && amixer sset Master unmute; sleep 0.5 && amixer sset Master 100% &
 else
-    amixer sset Master 80%
+    amixer sset Master 100%
 fi
 
 if grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
@@ -51,24 +52,24 @@ fi
     M=$(date +%-M)
     
     IN_RANGE=false
-    if [ "$H" -eq 4 ]; then
-        IN_RANGE=true
-    elif [ "$H" -eq 5 ]; then
-        IN_RANGE=true
-    elif [ "$H" -eq 6 ]; then
-        IN_RANGE=true
-    elif [ "$H" -eq 7 ]; then
-        IN_RANGE=true
-    elif [ "$H" -eq 8 ]; then
+    # if [ "$H" -eq 4 ]; then
+    #     IN_RANGE=true
+    # elif [ "$H" -eq 5 ]; then
+    #     IN_RANGE=true
+    # elif [ "$H" -eq 6 ]; then
+    #     IN_RANGE=true
+    # elif [ "$H" -eq 7 ]; then
+    #     IN_RANGE=true
+    if [ "$H" -eq 8 ]; then
         IN_RANGE=true
     elif [ "$H" -eq 9 ]; then
         IN_RANGE=true
-    elif [ "$H" -eq 13 ]; then
-	IN_RANGE=true
-    elif [ "$H" -eq 18 ]; then
-	IN_RANGE=true
-    elif [ "$H" -eq 19 ]; then
-	IN_RANGE=true
+    # elif [ "$H" -eq 13 ]; then
+    # 	IN_RANGE=true
+    # elif [ "$H" -eq 18 ]; then
+    # 	IN_RANGE=true
+    # elif [ "$H" -eq 19 ]; then
+    #   IN_RANGE=true
     # elif [ "$H" -eq 20 ]; then
     # 	IN_RANGE=true
     # elif [ "$H" -eq 21 ]; then
@@ -217,7 +218,7 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
     exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
 fi
 
-doas /home/user/monoliths-llm/gaming-mode.sh
+# doas /home/user/monoliths-llm/gaming-mode.sh
 
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
@@ -246,10 +247,26 @@ if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
 	# 2. Si está conectado por USB, validar si ADB ya lo reconoce
 	if adb devices | grep -v 'List of devices' | grep -q 'device'; then
             echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
-            LD_PRELOAD=/home/user/lib/sdl_cursor_hook.so scrcpy -d || adb kill-server && adb start-server
+            # Determinar si hay un mouse o touchpad conectado. Si no, deshabilitar el teclado en scrcpy.
+            SCRCPY_KEYS="--keyboard=sdk"
+            if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
+                SCRCPY_KEYS="--keyboard=disabled"
+            fi
+            read SW SH <<EOF
+$(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
+EOF
+            SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || adb kill-server && adb start-server
 	else
             echo '[ADB] Celular detectado por USB, pero no por ADB. Reiniciando servidor...'
-            adb kill-server && adb start-server && LD_PRELOAD=/home/user/lib/sdl_cursor_hook.so scrcpy -d || killall scrcpy
+            # Determinar si hay un mouse o touchpad conectado. Si no, deshabilitar el teclado en scrcpy.
+            SCRCPY_KEYS="--keyboard=sdk"
+            if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
+                SCRCPY_KEYS="--keyboard=disabled"
+            fi
+            read SW SH <<EOF
+$(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
+EOF
+            adb kill-server && adb start-server && SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || killall scrcpy
 	fi
 	sleep 0.5
     done &
