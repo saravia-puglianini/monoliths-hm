@@ -95,6 +95,7 @@ if [ -z "$PARAM" ]; then
     echo '86) Loopback - Select Loopback audio'
     echo '87) JBL - audifinos'
     echo '88) SOF - internal sound'
+    echo '89) Inhibir_Ambiente - Este comando reproduce un ruido que ayuda a silenciar el ruido de al rededor que no es captado por el microfono pero si por los oidos del usuario'
     echo ''
 fi
 
@@ -666,6 +667,9 @@ EOF
 	;;
     88|SOF)
 	bash $HOME/monoliths-llm/sof-snd-dsp.sh
+	;;
+    89|Inhibir_Ambiente)
+	bash $HOME/monoliths-llm/inhibir-ambiente.sh
 	;;
     *)
 	echo 'Opción no mapeada.'

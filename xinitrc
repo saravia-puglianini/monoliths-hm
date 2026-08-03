@@ -20,6 +20,9 @@ xsetroot -cursor_name left_ptr
 xset r rate 150 110
 feh --bg-scale $HOME/monoliths-hm/white-background.png &
 
+# Lanzar información de /dev/input/ mediante dev.sh al inicio
+( sleep 1 && lxterminal -e bash -c "bash $HOME/monoliths-llm/dev.sh; exec bash" ) &
+
 if doas dmesg | grep -q ZenBook > /dev/null && uname -r | grep '5.10' > /dev/null; then
     bash $HOME/monoliths-llm/sof-snd-dsp.sh
     sleep 0.5 && amixer sset Master unmute; sleep 0.5 && amixer sset Master 100% &
@@ -42,6 +45,8 @@ fi
         echo "$(date +%s) $CAP" > /tmp/bat.sh.log
     fi
 ) &
+
+xhost +local:
 
 # Alerta de batería baja por la mañana (entre 8:55 AM y 9:55 AM) si no está conectado a la corrient
 (
@@ -212,8 +217,44 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
 	echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
         sleep 4 && emacs -mm --debug-init &
     fi
-    if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
-        ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
+    # if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
+    #     ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
+    # fi
+    if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
+        while ! pgrep scrcpy > /dev/null; do
+            # 1. Validar si el celular está conectado físicamente al puerto USB
+            if ! grep -qi 'android' /sys/bus/usb/devices/*/product 2>/dev/null; then
+                echo '[USB] Esperando a que conectes el celular por USB...'
+                sleep 0.5
+                continue
+            fi
+
+            # 2. Si está conectado por USB, validar si ADB ya lo reconoce
+            if adb devices | grep -v 'List of devices' | grep -q 'device'; then
+                echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
+                # Determinar si hay un mouse o touchpad conectado. Si no, deshabilitar el teclado en scrcpy.
+                SCRCPY_KEYS="--keyboard=sdk"
+                if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
+                    SCRCPY_KEYS="--keyboard=disabled"
+                fi
+                read SW SH <<EOF
+$(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
+EOF
+                SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || adb kill-server && adb start-server
+            else
+                echo '[ADB] Celular detectado por USB, pero no por ADB. Reiniciando servidor...'
+                # Determinar si hay un mouse o touchpad conectado. Si no, deshabilitar el teclado en scrcpy.
+                SCRCPY_KEYS="--keyboard=sdk"
+                if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
+                    SCRCPY_KEYS="--keyboard=disabled"
+                fi
+                read SW SH <<EOF
+$(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
+EOF
+                adb kill-server && adb start-server && SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || killall scrcpy
+            fi
+            sleep 0.5
+        done &
     fi
     exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
 fi
@@ -223,12 +264,12 @@ fi
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
     while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init; done &
-    ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
+    # ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
     sleep 2
     while [ -f /usr/bin/google-chrome-stable ]; do
         # if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
         if doas dmesg | grep -q ZenBook > /dev/null; then
-            google-chrome-stable
+            google-chrome-stable --enable-audio-service-sandbox=false
         else
             google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization
         fi
@@ -293,7 +334,7 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
     while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init; done &
-    ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
+    # ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
 fi
 
 # exec start-lumina-desktop
@@ -348,7 +389,7 @@ else
     fi
 fi
 
-while [ -f /usr/bin/st ]; do  sleep 1; st; done &
+# while [ -f /usr/bin/st ]; do  sleep 1; st; done &
 
 if ! $NOGUI; then
     exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
