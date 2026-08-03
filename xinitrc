@@ -18,10 +18,15 @@ get_secret() {
 setxkbmap latam
 xsetroot -cursor_name left_ptr
 xset r rate 150 110
+# Cargar menú/acciones de Hyperbole mediante my.shell.el al inicio de X11
+if [ -f "$HOME/monoliths-hm/my.shell.el" ]; then
+    emacs --batch -l "$HOME/monoliths-hm/my.shell.el" --eval '(my-shell-execute-by-id "7")' &
+fi
+
 feh --bg-scale $HOME/monoliths-hm/white-background.png &
 
 # Lanzar información de /dev/input/ mediante dev.sh al inicio
-( sleep 1 && lxterminal -e bash -c "bash $HOME/monoliths-llm/dev.sh; exec bash" ) &
+# ( sleep 1 && lxterminal -e bash -c "bash $HOME/monoliths-llm/dev.sh; exec bash" ) &
 
 if doas dmesg | grep -q ZenBook > /dev/null && uname -r | grep '5.10' > /dev/null; then
     bash $HOME/monoliths-llm/sof-snd-dsp.sh
