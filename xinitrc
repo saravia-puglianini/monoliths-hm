@@ -220,7 +220,7 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
 	echo TXHC | doas tee /proc/acpi/wakeup &
 	echo 1 | doas tee /sys/devices/system/cpu/intel_pstate/no_turbo &
 	echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
-        sleep 4 && emacs -mm --debug-init &
+        sleep 4 && emacs -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)' &
     fi
     # if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
     #     ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
@@ -268,7 +268,7 @@ fi
 
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
-    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init; done &
+    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)'; done &
     # ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
     sleep 2
     while [ -f /usr/bin/google-chrome-stable ]; do
@@ -338,8 +338,7 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && dash ~/literatura/message_img.sh 'Literatura desde cualquier idioma al alemán' &
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
-    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init; done &
-    # ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
+    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)'; done &
 fi
 
 # exec start-lumina-desktop
