@@ -67,5 +67,18 @@
             (insert sep "\n"))))
       (goto-char (point-min)))))
 
+(with-eval-after-load 'hyperbole
+  (defib my-shell-menu-action ()
+    "Activates a menu action when clicking on its name in the *scratch* buffer."
+    (when (string= (buffer-name) "*scratch*")
+      (let ((bounds (bounds-of-thing-at-point 'symbol)))
+        (when bounds
+          (let* ((symbol-name (buffer-substring-no-properties (car bounds) (cdr bounds)))
+                 (items (my-shell-get-items))
+                 (item (assoc symbol-name (mapcar (lambda (x) (cons (nth 1 x) (nth 0 x))) items))))
+            (when item
+              (ibut:label-set symbol-name (car bounds) (cdr bounds))
+              (hact 'my-shell-execute-by-id (cdr item)))))))))
+
 (provide 'my.shell)
 ;;; my.shell.el ends here
