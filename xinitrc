@@ -274,9 +274,8 @@ if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     while [ -f /usr/bin/google-chrome-stable ]; do
         # if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
         if doas dmesg | grep -q ZenBook > /dev/null; then
-	    echo 'google-chrome-stable --alsa-output-device=plug:hw:0,6'
 	    # google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena
-	    google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k
+	    echo 'google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k'
         else
             google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization
         fi

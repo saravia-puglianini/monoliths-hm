@@ -1,6 +1,17 @@
 #!/bin/dash
 
-PARAM="$1"
+[ -z "$DISPLAY" ] && export DISPLAY=:0
+
+QUIET=0
+PARAM=""
+
+for arg in "$@"; do
+    if [ "$arg" = "-q" ]; then
+        QUIET=1
+    elif [ -z "$PARAM" ]; then
+        PARAM="$arg"
+    fi
+done
 
 Laptop=$(doas dmesg 2>/dev/null | grep -q 'HP HP' && echo Asus || echo HP)
 LaptopMin=$(doas dmesg 2>/dev/null | grep -q 'HP HP' && echo hp || echo asus)
@@ -94,8 +105,8 @@ if [ -z "$PARAM" ]; then
     echo '85) Bluetooth - Blueman Manager'
     echo '86) Loopback - Select Loopback audio'
     echo '87) JBL - audifinos'
-    echo '88) SOF - internal sound'
-    echo '89) Inhibir_Ambiente - Este comando reproduce un ruido que ayuda a silenciar el ruido de al rededor que no es captado por el microfono pero si por los oidos del usuario'
+    echo '88) Inhibir_Ambiente - Este comando reproduce un ruido que ayuda a silenciar el ruido de al rededor que no es captado por el microfono pero si por los oidos del usuario'
+    echo '89) chrome - con soporte loopback'
     echo ''
 fi
 
@@ -107,13 +118,22 @@ if [ -n "$PARAM" ]; then
         # Búsqueda por número directo dentro de los comandos 'echo'
         MATCH=$(grep "echo '$PARAM)" "$0" | head -n 1 | sed "s/.*echo '//; s/'.*//")
         if [ -n "$MATCH" ]; then
-            printf "\nDesea seleccionar esta opcion? \n"
-            printf "$MATCH [S/n] "
-            read CONFIRM
-            case "$CONFIRM" in
-                ""|[Ss]*) USER_INPUT="$PARAM" ;;
-                *) echo "Cancelado."; exit 0 ;;
-            esac
+            if [ "$QUIET" -eq 1 ]; then
+                echo "-> Ejecutando opción..."
+                USER_INPUT="$PARAM"
+            else
+                printf "\nDesea seleccionar esta opcion? \n"
+                printf "$MATCH [S/n] "
+                read CONFIRM
+                case "$CONFIRM" in
+                    ""|[Ss]*)
+                        [ ! -t 0 ] && echo "S"
+                        echo "-> Ejecutando opción..."
+                        USER_INPUT="$PARAM"
+                        ;;
+                    *) echo "Cancelado."; exit 0 ;;
+                esac
+            fi
         else
             echo "No se encontró la opción número $PARAM."
             exit 1
@@ -128,13 +148,22 @@ if [ -n "$PARAM" ]; then
             echo "No se encontró ninguna opción que coincida con '$PARAM'."
             exit 1
         elif [ "$NUM_MATCHES" -eq 1 ]; then
-            printf "\nDesea seleccionar esta opcion? \n"
-            printf "$MATCHES [S/n] "
-            read CONFIRM
-            case "$CONFIRM" in
-                ""|[Ss]*) USER_INPUT=$(echo "$MATCHES" | cut -d')' -f1) ;;
-                *) echo "Cancelado."; exit 0 ;;
-            esac
+            if [ "$QUIET" -eq 1 ]; then
+                echo "-> Ejecutando opción..."
+                USER_INPUT=$(echo "$MATCHES" | cut -d')' -f1)
+            else
+                printf "\nDesea seleccionar esta opcion? \n"
+                printf "$MATCHES [S/n] "
+                read CONFIRM
+                case "$CONFIRM" in
+                    ""|[Ss]*)
+                        [ ! -t 0 ] && echo "S"
+                        echo "-> Ejecutando opción..."
+                        USER_INPUT=$(echo "$MATCHES" | cut -d')' -f1)
+                        ;;
+                    *) echo "Cancelado."; exit 0 ;;
+                esac
+            fi
         else
             echo "Se encontraron varias opciones para '$PARAM':"
             echo "$MATCHES"
@@ -552,10 +581,10 @@ EOF
 	echo "Velocidad del touchpad aumentada (Synaptics)."
 	;;
     70|Chromium_LuisAProfile)
-        mkdir -p $HOME/.chromium_luis_a_profile_tikets && google-chrome-stable --user-data-dir=$HOME/.chromium_luis_a_profile_tikets &
+        mkdir -p $HOME/.chromium_luis_a_profile_tikets && setsid google-chrome-stable --user-data-dir=$HOME/.chromium_luis_a_profile_tikets >/dev/null 2>&1 &
 	;;
     71|Chromium_GuiosepTProfile)
-        mkdir -p $HOME/.chromium_guiosep_profile_tikets && google-chrome-stable --user-data-dir=$HOME/.chromium_guiosep_profile_tikets &
+        mkdir -p $HOME/.chromium_guiosep_profile_tikets && setsid google-chrome-stable --user-data-dir=$HOME/.chromium_guiosep_profile_tikets >/dev/null 2>&1 &
 	;;
     72|Contar_Horas)
         if [ ! -f /tmp/Contar_Horas_counter_is_run_already.pid ]; then
@@ -569,10 +598,10 @@ EOF
         fi
         ;;
     73|GChrome_Profile_Ticket_ERC)
-	folder='chromium-new-profile-ticket-erc'; mkdir -p "$HOME/.$folder" && google-chrome-stable --user-data-dir="$HOME/.$folder" &
+	folder='chromium-new-profile-ticket-erc'; mkdir -p "$HOME/.$folder" && setsid google-chrome-stable --user-data-dir="$HOME/.$folder" >/dev/null 2>&1 &
 	;;
     74|GChrome_Profile_Tmp)
-	tmpfolder='/tmp/chromium-new-profile-tmp'; mkdir -p "$tmpfolder" && google-chrome-stable --user-data-dir="$tmpfolder" --app=http://localhost:4200 &
+	tmpfolder='/tmp/chromium-new-profile-tmp'; mkdir -p "$tmpfolder" && setsid google-chrome-stable --user-data-dir="$tmpfolder" --app=http://localhost:4200 >/dev/null
 	;;
     75|Emwm_$Laptop)
 	# 1. Asegurar que Xephyr sabe dónde abrirse localmente (tu pantalla principal)
@@ -649,27 +678,31 @@ EOF
 	bash $HOME/monoliths-llm/ver-horas.sh &
 	;;
     83|Google_Chrome_No_Inhibit)
+	export DISPLAY=:0
 	systemd-inhibit --why="Necesito mantener la conexión en TTY" google-chrome
 	;;
     84|Firefox_Tmp)
-	mkdir -p $HOME/.firefox-new-profile-$(date +%s) && firefox --profile $HOME/.firefox-new-profile-$(date +%s) &
-	# folder="$HOME/.firefox-new-profile-$(date +%s)"; mkdir -p "$HOME/.$folder" && google-chrome-stable --user-data-dir="$HOME/.$folder"
+	export DISPLAY=:0
+	mkdir -p $HOME/.firefox-new-profile-$(date +%s) && setsid firefox --profile $HOME/.firefox-new-profile-$(date +%s) >/dev/null 2>&1 &
 	;;
     85|Bluetooth)
-        blueman-applet & sleep 1 && blueman-manager &
+	export DISPLAY=:0
+        setsid blueman-applet >/dev/null 2>&1 & sleep 1 && setsid blueman-manager >/dev/null 2>&1 &
 	;;
     86|Loopback)
-	pavucontrol &
+	export DISPLAY=:0
+	setsid pavucontrol >/dev/null 2>&1 &
 	bash $HOME/monoliths-llm/loopback-yad.sh &
 	;;
     87|JBL)
-	bash $HOME/monoliths-llm/JBL-Quantum350-wireless.sh
+	bash $HOME/monoliths-llm/JBL-FILTER-Quantum350-wireless.sh
 	;;
-    88|SOF)
-	bash $HOME/monoliths-llm/sof-snd-dsp.sh
-	;;
-    89|Inhibir_Ambiente)
+    88|Inhibir_Ambiente)
 	bash $HOME/monoliths-llm/inhibir-ambiente.sh
+	;;
+    89|chrome)
+	export DISPLAY=:0
+	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k
 	;;
     *)
 	echo 'Opción no mapeada.'

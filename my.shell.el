@@ -18,10 +18,15 @@
             (push (list id name desc) items))))
       (nreverse items))))
 
-(defun my-shell-execute-by-id (id)
-  "Ejecuta la opción correspondiente al ID."
+(defun my-shell-execute-by-id (id &optional name)
+  "Ejecuta la opción correspondiente al ID en su propio buffer *<name> shell*."
   (when (file-exists-p my-shell-script-file)
-    (call-process-shell-command (format "echo %s | dash %s &" id my-shell-script-file))))
+    (let* ((actual-name (or name
+                            (nth 1 (assoc id (my-shell-get-items)))))
+           (buf-name (format "*%s shell*" (or actual-name id)))
+           (display (or (getenv "DISPLAY") ":0"))
+           (cmd (format "DISPLAY=%s dash %s -q %s" display my-shell-script-file id)))
+      (async-shell-command cmd buf-name))))
 
 (defun generate-hyperbole-scratch-menu ()
   "Genera la tabla interactiva de Hyperbole en *scratch* leyendo my.shell.sh."
@@ -42,7 +47,7 @@
             (let* ((id (nth 0 item))
                    (name (nth 1 item))
                    (desc (nth 2 item))
-                   (btn (format "<exec-shell-cmd \"echo %s | dash %s\">" id my-shell-script-file)))
+                   (btn (format "{ (my-shell-execute-by-id \"%s\" \"%s\") }" id name)))
               (setq max-name (max max-name (length name)))
               (setq max-desc (max max-desc (length desc)))
               (setq max-btn (max max-btn (length btn)))))
@@ -59,7 +64,7 @@
               (let* ((id (nth 0 item))
                      (name (nth 1 item))
                      (desc (nth 2 item))
-                     (btn (format "<exec-shell-cmd \"echo %s | dash %s\">" id my-shell-script-file)))
+                     (btn (format "{ (my-shell-execute-by-id \"%s\" \"%s\") }" id name)))
                 (insert (format "| %s | %s | %s |\n"
                                 (string-pad name max-name)
                                 (string-pad desc max-desc)
@@ -71,14 +76,13 @@
   (defib my-shell-menu-action ()
     "Activates a menu action when clicking on its name in the *scratch* buffer."
     (when (string= (buffer-name) "*scratch*")
-      (let ((bounds (bounds-of-thing-at-point 'symbol)))
-        (when bounds
-          (let* ((symbol-name (buffer-substring-no-properties (car bounds) (cdr bounds)))
-                 (items (my-shell-get-items))
-                 (item (assoc symbol-name (mapcar (lambda (x) (cons (nth 1 x) (nth 0 x))) items))))
-            (when item
-              (ibut:label-set symbol-name (car bounds) (cdr bounds))
-              (hact 'my-shell-execute-by-id (cdr item)))))))))
+      (save-excursion
+        (beginning-of-line)
+        (when (looking-at "|\\s-*\\([^|]+\\S-\\)\\s-*|\\s-*[^|]+\\s-*|\\s-*{\\s-*(my-shell-execute-by-id\\s-+\"\\([0-9]+\\)\"")
+          (let ((name (match-string 1))
+                (id (match-string 2)))
+            (ibut:label-set name (match-beginning 1) (match-end 1))
+            (hact 'my-shell-execute-by-id id name)))))))
 
 (provide 'my.shell)
 ;;; my.shell.el ends here
