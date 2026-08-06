@@ -581,10 +581,10 @@ EOF
 	echo "Velocidad del touchpad aumentada (Synaptics)."
 	;;
     70|Chromium_LuisAProfile)
-        mkdir -p $HOME/.chromium_luis_a_profile_tikets && setsid google-chrome-stable --user-data-dir=$HOME/.chromium_luis_a_profile_tikets >/dev/null 2>&1 &
+        mkdir -p $HOME/.chromium_luis_a_profile_tikets && setsid google-chrome-stable --user-data-dir=$HOME/.chromium_luis_a_profile_tikets > /dev/null 2>&1 ;
 	;;
     71|Chromium_GuiosepTProfile)
-        mkdir -p $HOME/.chromium_guiosep_profile_tikets && setsid google-chrome-stable --user-data-dir=$HOME/.chromium_guiosep_profile_tikets >/dev/null 2>&1 &
+        mkdir -p $HOME/.chromium_guiosep_profile_tikets && setsid google-chrome-stable --user-data-dir=$HOME/.chromium_guiosep_profile_tikets > /dev/null 2>&1 ;
 	;;
     72|Contar_Horas)
         if [ ! -f /tmp/Contar_Horas_counter_is_run_already.pid ]; then
@@ -598,7 +598,7 @@ EOF
         fi
         ;;
     73|GChrome_Profile_Ticket_ERC)
-	folder='chromium-new-profile-ticket-erc'; mkdir -p "$HOME/.$folder" && setsid google-chrome-stable --user-data-dir="$HOME/.$folder" >/dev/null 2>&1 &
+	folder='chromium-new-profile-ticket-erc'; mkdir -p "$HOME/.$folder" && setsid google-chrome-stable --user-data-dir="$HOME/.$folder" > /dev/null 2>&1 ;
 	;;
     74|GChrome_Profile_Tmp)
 	tmpfolder='/tmp/chromium-new-profile-tmp'; mkdir -p "$tmpfolder" && setsid google-chrome-stable --user-data-dir="$tmpfolder" --app=http://localhost:4200 >/dev/null
@@ -611,7 +611,7 @@ EOF
 	killall Xephyr 2>/dev/null
 
 	# 3. Iniciar Xephyr en el display :9 (ahora sí se abrirá encima de tu display :0)
-	Xephyr :9 -br -ac -noreset -screen 1280x700 &
+	Xephyr :9 -br -ac -noreset -screen 1280x700 ;
 
 	# 4. Esperar a que inicialice
 	sleep 1
@@ -669,7 +669,7 @@ EOF
 	dash "$HOME/$(cat $HOME/.personal)/USA.sh"
   	;;
     80|Luz_Off_Pantalla)
-	( sleep 3 && xset dpms force off ) &
+	( sleep 3 && xset dpms force off ) ;
 	;;
     81|Max_Energy)
 	doas ./monoliths-llm/gaming-mode.sh
@@ -687,12 +687,11 @@ EOF
 	;;
     85|Bluetooth)
 	export DISPLAY=:0
-        setsid blueman-applet >/dev/null 2>&1 & sleep 1 && setsid blueman-manager >/dev/null 2>&1 &
+        setsid blueman-applet > /dev/null 2>&1 ; sleep 1 && setsid blueman-manager > /dev/null 2>&1 ;
 	;;
     86|Loopback)
 	export DISPLAY=:0
-	setsid pavucontrol >/dev/null 2>&1 &
-	bash $HOME/monoliths-llm/loopback-yad.sh &
+	setsid pavucontrol >/dev/null ; bash $HOME/monoliths-llm/loopback-yad.sh ;
 	;;
     87|JBL)
 	bash $HOME/monoliths-llm/JBL-FILTER-Quantum350-wireless.sh

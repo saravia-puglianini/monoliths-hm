@@ -23,6 +23,12 @@ if [ -f "$HOME/monoliths-hm/my.shell.el" ]; then
     emacs --batch -l "$HOME/monoliths-hm/my.shell.el" &
 fi
 
+# Cargar menú/acciones de Hyperbole para amd64gnu+linux al inicio de X11
+if [ -f "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" ]; then
+    emacs --batch -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" \
+          --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' &
+fi
+
 feh --bg-scale $HOME/monoliths-hm/white-background.png &
 
 # Lanzar información de /dev/input/ mediante dev.sh al inicio
