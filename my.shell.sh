@@ -105,7 +105,7 @@ if [ -z "$PARAM" ]; then
     echo '85) Bluetooth - Blueman Manager'
     echo '86) Loopback - Select Loopback audio'
     echo '87) JBL - audifinos'
-    echo '88) Inhibir_Ambiente - Este comando reproduce un ruido que ayuda a silenciar el ruido de al rededor que no es captado por el microfono pero si por los oidos del usuario'
+    echo '88) Inhibir_Ambiente - Sin ruido'
     echo '89) chrome - con soporte loopback'
     echo ''
 fi

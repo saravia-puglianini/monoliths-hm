@@ -226,7 +226,7 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
 	echo TXHC | doas tee /proc/acpi/wakeup &
 	echo 1 | doas tee /sys/devices/system/cpu/intel_pstate/no_turbo &
 	echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
-        sleep 4 && emacs -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)' &
+        sleep 1 && emacs -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' &
     fi
     # if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
     #     ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
@@ -274,9 +274,9 @@ fi
 
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
-    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)'; done &
+    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
     # ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
-    sleep 2
+    sleep 1
     while [ -f /usr/bin/google-chrome-stable ]; do
         # if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
         if doas dmesg | grep -q ZenBook > /dev/null; then
@@ -287,7 +287,7 @@ if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
         fi
         # google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
 	# fi
-        sleep 4
+        sleep 1
     done &
     while ! pgrep scrcpy > /dev/null; do
 	# 1. Validar si el celular está conectado físicamente al puerto USB
@@ -323,7 +323,7 @@ EOF
 	fi
 	sleep 0.5
     done &
-    while [ -f '/opt/Antigravity-IDE/antigravity-ide' ]; do '/opt/Antigravity-IDE/antigravity-ide' ~/app-asociados-android; sleep 2; done &
+    while [ -f '/opt/Antigravity-IDE/antigravity-ide' ]; do sleep 3 ; '/opt/Antigravity-IDE/antigravity-ide' ; done &
 elif [ "$CURRENT_TTY" = "/dev/tty2" ]; then
     sleep 1 && gromit-mpx &
     sleep 3 && chromium-native --app=https://gmail.com &
@@ -345,7 +345,7 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && dash ~/literatura/message_img.sh 'Literatura desde cualquier idioma al alemán' &
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
-    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)'; done &
+    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
 fi
 
 # exec start-lumina-desktop
