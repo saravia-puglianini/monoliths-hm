@@ -23,7 +23,58 @@ if [ -f "$HOME/monoliths-hm/my.shell.el" ]; then
     emacs --batch -l "$HOME/monoliths-hm/my.shell.el" &
 fi
 
-feh --bg-scale $HOME/monoliths-hm/white-background.png &
+# Cargar menú/acciones de Hyperbole para amd64gnu+linux al inicio de X11
+if [ -f "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" ]; then
+    emacs --batch -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" \
+          --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' &
+fi
+
+(
+    MAC="13:08:AC:00:21:8A"
+
+    echo "--- Reiniciando módulos del kernel Bluetooth ---"
+    doas modprobe -r btusb 2>/dev/null
+    doas modprobe -r bluetooth 2>/dev/null
+    sleep 1
+    doas modprobe bluetooth 2>/dev/null
+    doas modprobe btusb 2>/dev/null
+    sleep 1
+
+    echo "--- Desbloqueando e iniciando servicio Bluetooth ---"
+    doas rfkill unblock bluetooth 2>/dev/null
+    doas rfkill unblock all 2>/dev/null
+    doas /etc/init.d/bluetooth restart 2>/dev/null
+
+    sleep 2
+    doas hciconfig hci0 up 2>/dev/null
+    doas hciconfig hci0 piscan 2>/dev/null
+
+    sleep 2
+
+    echo "--- Conectando al mouse TERAWARE5.0 ($MAC) ---"
+
+    {
+	echo "power on"
+	sleep 2
+	echo "agent on"
+	echo "default-agent"
+	sleep 1
+	echo "scan on"
+	sleep 3
+	echo "pair $MAC"
+	sleep 3
+	echo "trust $MAC"
+	sleep 2
+	echo "connect $MAC"
+	sleep 5
+	echo "scan off"
+	echo "quit"
+    } | bluetoothctl
+
+    echo ""
+    echo "--- Estado final del dispositivo ---"
+    echo "info $MAC" | bluetoothctl | grep -i -E "Name|Connected|Paired|Trusted"
+) &
 
 # Lanzar información de /dev/input/ mediante dev.sh al inicio
 # ( sleep 1 && lxterminal -e bash -c "bash $HOME/monoliths-llm/dev.sh; exec bash" ) &
@@ -220,7 +271,7 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
 	echo TXHC | doas tee /proc/acpi/wakeup &
 	echo 1 | doas tee /sys/devices/system/cpu/intel_pstate/no_turbo &
 	echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
-        sleep 4 && emacs -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)' &
+        sleep 1 && emacs -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' &
     fi
     # if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
     #     ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
@@ -268,19 +319,20 @@ fi
 
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
-    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)'; done &
+    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
     # ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
-    sleep 2
+    sleep 1
     while [ -f /usr/bin/google-chrome-stable ]; do
         # if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
         if doas dmesg | grep -q ZenBook > /dev/null; then
-            google-chrome-stable --enable-audio-service-sandbox=false
+	    # google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena
+	    echo 'google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k'
         else
             google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization
         fi
         # google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
 	# fi
-        sleep 4
+        sleep 1
     done &
     while ! pgrep scrcpy > /dev/null; do
 	# 1. Validar si el celular está conectado físicamente al puerto USB
@@ -316,7 +368,7 @@ EOF
 	fi
 	sleep 0.5
     done &
-    while [ -f '/opt/Antigravity-IDE/antigravity-ide' ]; do '/opt/Antigravity-IDE/antigravity-ide' ~/app-asociados-android; sleep 2; done &
+    while [ -f '/opt/Antigravity-IDE/antigravity-ide' ]; do sleep 3 ; '/opt/Antigravity-IDE/antigravity-ide' ; done &
 elif [ "$CURRENT_TTY" = "/dev/tty2" ]; then
     sleep 1 && gromit-mpx &
     sleep 3 && chromium-native --app=https://gmail.com &
@@ -338,62 +390,14 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && dash ~/literatura/message_img.sh 'Literatura desde cualquier idioma al alemán' &
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
-    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" --eval '(generate-hyperbole-scratch-menu)'; done &
+    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
 fi
 
 # exec start-lumina-desktop
 if doas dmesg | grep -q ZenBook > /dev/null; then
     dash $HOME/monoliths-llm/enfriar-asus.sh &
-
     deskflow-server -c $HOME/deskflow.conf &
-else
-    # --- Configuración de variables ---
-    if false; then
-	TIEMPO_ESPERA=12
-
-	dash $HOME/monoliths-llm/enfriar-hp.sh &
-
-	# 1. Iniciar input-leap en segundo plano (como demonio con config)
-	input-leap &
-
-	# 2. Cuenta regresiva y xdotool en segundo plano para no bloquear Alt_Tab_Maximize_Only
-	(
-            (
-		i=$TIEMPO_ESPERA
-		while [ "$i" -gt 0 ]; do
-                    echo "Lanzando macro input-leap en: $i"
-                    sleep 1
-                    i=$((i - 1))
-		done
-            ) | osd_cat -p middle -A center -l 1 -c green -d 1
-
-            # 3. Secuencia de pulsaciones y escritura
-            xdotool key Alt+c
-            sleep 0.5
-            xdotool key Alt+c
-            sleep 0.5
-            xdotool key Alt+c
-            sleep 0.5
-            xdotool key Alt+c
-	    sleep 0.5
-            xdotool key Tab
-	    sleep 0.5
-	    xdotool type '192.168.0.162'
-            sleep 0.5
-            xdotool key Tab
-            sleep 0.5
-            xdotool key space
-            sleep 0.5
-            xdotool key Tab
-            sleep 0.5
-            xdotool key space
-	    sleep 0.5 && wmctrl -i -r "$(wmctrl -l | awk '/InputLeap/ {print $1}')" -b add,hidden
-
-	) &
-    fi
 fi
-
-# while [ -f /usr/bin/st ]; do  sleep 1; st; done &
 
 if ! $NOGUI; then
     exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
