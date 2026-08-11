@@ -20,7 +20,7 @@ xsetroot -cursor_name left_ptr
 xset r rate 150 110
 # Cargar menú/acciones de Hyperbole mediante my.shell.el al inicio de X11
 if [ -f "$HOME/monoliths-hm/my.shell.el" ]; then
-    emacs --batch -l "$HOME/monoliths-hm/my.shell.el" --eval '(my-shell-execute-by-id "7")' &
+    emacs --batch -l "$HOME/monoliths-hm/my.shell.el" &
 fi
 
 feh --bg-scale $HOME/monoliths-hm/white-background.png &
