@@ -125,20 +125,20 @@ xhost +local:
         IN_RANGE=true
     elif [ "$H" -eq 9 ]; then
         IN_RANGE=true
-    # elif [ "$H" -eq 13 ]; then
-    # 	IN_RANGE=true
-    # elif [ "$H" -eq 18 ]; then
-    # 	IN_RANGE=true
-    # elif [ "$H" -eq 19 ]; then
-    #   IN_RANGE=true
-    # elif [ "$H" -eq 20 ]; then
-    # 	IN_RANGE=true
-    # elif [ "$H" -eq 21 ]; then
-    # 	IN_RANGE=true
-    # elif [ "$H" -eq 22 ]; then
-    # 	IN_RANGE=true
-    # elif [ "$H" -eq 23 ]; then
-    # 	IN_RANGE=true
+	# elif [ "$H" -eq 13 ]; then
+	# 	IN_RANGE=true
+	# elif [ "$H" -eq 18 ]; then
+	# 	IN_RANGE=true
+	# elif [ "$H" -eq 19 ]; then
+	#   IN_RANGE=true
+	# elif [ "$H" -eq 20 ]; then
+	# 	IN_RANGE=true
+	# elif [ "$H" -eq 21 ]; then
+	# 	IN_RANGE=true
+	# elif [ "$H" -eq 22 ]; then
+	# 	IN_RANGE=true
+	# elif [ "$H" -eq 23 ]; then
+	# 	IN_RANGE=true
     fi
     
     if $IN_RANGE; then
@@ -368,7 +368,7 @@ EOF
 	fi
 	sleep 0.5
     done &
-    while [ -f '/opt/Antigravity-IDE/antigravity-ide' ]; do sleep 3 ; '/opt/Antigravity-IDE/antigravity-ide' ; done &
+
 elif [ "$CURRENT_TTY" = "/dev/tty2" ]; then
     sleep 1 && gromit-mpx &
     sleep 3 && chromium-native --app=https://gmail.com &
@@ -400,5 +400,9 @@ if doas dmesg | grep -q ZenBook > /dev/null; then
 fi
 
 if ! $NOGUI; then
-    exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
+    if [ -f $HOME/alt_tab_maximize_emacs-buffer_only/alt_tab_maximize_emacs-buffer_only-session ]; then
+	exec alt_tab_maximize_emacs-buffer_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
+    else
+	exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
+    fi
 fi

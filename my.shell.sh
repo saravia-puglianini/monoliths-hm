@@ -107,6 +107,7 @@ if [ -z "$PARAM" ]; then
     echo '87) JBL - audifinos'
     echo '88) Inhibir_Ambiente - Sin ruido'
     echo '89) chrome - con soporte loopback'
+    echo '90) chrome_jbl - con soporte JBL'
     echo ''
 fi
 
@@ -672,7 +673,7 @@ EOF
 	( sleep 3 && xset dpms force off ) ;
 	;;
     81|Max_Energy)
-	doas ./monoliths-llm/gaming-mode.sh
+	doas $HOME/monoliths-llm/gaming-mode.sh
 	;;
     82|Ver_Log)
 	bash $HOME/monoliths-llm/ver-horas.sh &
@@ -701,7 +702,11 @@ EOF
 	;;
     89|chrome)
 	export DISPLAY=:0
-	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k
+	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena
+	;;
+    90|chrome_jbl)
+	export DISPLAY=:0
+	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
 	;;
     *)
 	echo 'Opción no mapeada.'
