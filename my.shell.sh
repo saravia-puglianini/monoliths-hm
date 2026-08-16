@@ -13,8 +13,8 @@ for arg in "$@"; do
     fi
 done
 
-Laptop=$(doas dmesg 2>/dev/null | grep -q 'HP HP' && echo Asus || echo HP)
-LaptopMin=$(doas dmesg 2>/dev/null | grep -q 'HP HP' && echo hp || echo asus)
+Laptop=$(doas dmesg 2>/dev/null | grep -i -q 'HP' && echo HP || echo Asus)
+LaptopMin=$(doas dmesg 2>/dev/null | grep -i -q 'HP' && echo hp || echo asus)
 if [ -z "$PARAM" ]; then
     echo '=== Lista de Opciones ==='
     echo ''
@@ -602,7 +602,7 @@ EOF
 	folder='chromium-new-profile-ticket-erc'; mkdir -p "$HOME/.$folder" && setsid google-chrome-stable --user-data-dir="$HOME/.$folder" > /dev/null 2>&1 ;
 	;;
     74|GChrome_Profile_Tmp)
-	tmpfolder='/tmp/chromium-new-profile-tmp'; mkdir -p "$tmpfolder" && setsid google-chrome-stable --user-data-dir="$tmpfolder" --app=http://localhost:4200 >/dev/null
+	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && tmpfolder="/tmp/chromium-new-profile-tmp-$(date +%Y%M%d%M%S)"; mkdir -p "$tmpfolder"; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl --user-data-dir="$tmpfolder" > /dev/null 2>&1 ;
 	;;
     75|Emwm_$Laptop)
 	# 1. Asegurar que Xephyr sabe dónde abrirse localmente (tu pantalla principal)
