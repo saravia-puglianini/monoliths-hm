@@ -7,14 +7,17 @@
   "Obtiene la lista de ítems ejecutando 'dash ~/monoliths-hm/my.shell.sh'."
   (when (file-exists-p my-shell-script-file)
     (let ((raw-output (with-temp-buffer
-                        (call-process "dash" my-shell-script-file t nil)
+                        (call-process "dash" nil t nil my-shell-script-file)
                         (buffer-string)))
           (items nil))
       (dolist (line (split-string raw-output "\n" t))
-        (when (string-match "^\\([0-9]+\\)) \\([^ -]+\\)\\(?: - \\(.*\\)\\)?" line)
+        ;; Regex mejorada para capturar nombres largos con guiones y descripciones
+        (when (string-match "^\\s-*\\([0-9]+\\))\\s-*\\(.*?\\)\\(?:\\s-+-\\s-+\\(.*\\)\\)?$" line)
           (let* ((id (match-string 1 line))
-                 (name (match-string 2 line))
-                 (desc (or (match-string 3 line) name)))
+                 (name (string-trim (match-string 2 line)))
+                 (desc (if (match-string 3 line)
+                           (string-trim (match-string 3 line))
+                         name)))
             (push (list id name desc) items))))
       (nreverse items))))
 
@@ -40,7 +43,7 @@
         (insert ";;                 PANEL DE CONTROL INTERACTIVO (HYPERBOLE)             ;;\n")
         (insert ";; Presione M-RET / Action Key en un botón para ejecutar la acción.    ;;\n")
         (insert ";; ======================================================================\n\n")
-        (let ((max-name (length "Acción (Yad)"))
+        (let ((max-name (length "Acción"))
               (max-desc (length "Descripción"))
               (max-btn (length "Acción Hyperbole (Implicit Button)")))
           (dolist (item items)
@@ -54,27 +57,22 @@
           (let ((sep (format "|-%s-+-%s-+-%s-|"
                              (make-string max-name ?-)
                              (make-string max-desc ?-)
-                             (make-string max-btn ?-))))
-            (insert (format "| %s | %s | %s |\n"
-                            (string-pad "Acción (Yad)" max-name)
-                            (string-pad "Descripción" max-desc)
-                            (string-pad "Acción Hyperbole (Implicit Button)" max-btn)))
+                             (make-string max-btn ?-)))
+                (fmt (format "| %%-%ds | %%-%ds | %%-%ds |\n" max-name max-desc max-btn)))
+            (insert (format fmt "Acción" "Descripción" "Acción Hyperbole (Implicit Button)"))
             (insert sep "\n")
             (dolist (item items)
               (let* ((id (nth 0 item))
                      (name (nth 1 item))
                      (desc (nth 2 item))
                      (btn (format "{ (my-shell-execute-by-id \"%s\" \"%s\") }" id name)))
-                (insert (format "| %s | %s | %s |\n"
-                                (string-pad name max-name)
-                                (string-pad desc max-desc)
-                                (string-pad btn max-btn)))))
+                (insert (format fmt name desc btn))))
             (insert sep "\n"))))
       (goto-char (point-min)))))
 
 (with-eval-after-load 'hyperbole
   (defib my-shell-menu-action ()
-    "Activates a menu action when clicking on its name in the *scratch* buffer."
+    "Activates a menu action when clicking on its name or anywhere on the row in the *scratch* buffer."
     (when (string= (buffer-name) "*scratch*")
       (save-excursion
         (beginning-of-line)

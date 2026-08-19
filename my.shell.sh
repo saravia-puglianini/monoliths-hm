@@ -108,6 +108,174 @@ if [ -z "$PARAM" ]; then
     echo '88) Inhibir_Ambiente - Sin ruido'
     echo '89) chrome - con soporte loopback'
     echo '90) chrome_jbl - con soporte JBL'
+    echo '91) Temporizador_Personalizado - Iniciar temporizador simple en pantalla (timer.sh)'
+    echo '92) Ejercicios_Vocales - Lista interactiva de ejercicios vocales con checkbox'
+    echo '531) 170MB-report - Ejecutar 170MB-report.sh'
+    echo '532) 4k - Ejecutar 4k.sh'
+    echo '533) JBL-Quantum350-wireless - Ejecutar JBL-Quantum350-wireless.sh'
+    echo '534) Rocky-linux-8--gnumeric - Ejecutar Rocky-linux-8--gnumeric.sh'
+    echo '535) Rocky-linux-8-abiword - Ejecutar Rocky-linux-8-abiword.sh'
+    echo '536) _antigravity_ubuntu-05-chromium - Ejecutar _antigravity_ubuntu-05-chromium.sh'
+    echo '537) _dialog - Ejecutar _dialog.sh'
+    echo '538) _rec-to-certain-min - Ejecutar _rec-to-certain-min.sh'
+    echo '539) a-llm-yad - Ejecutar a-llm-yad.sh'
+    echo '540) auto - Ejecutar auto.sh'
+    echo '541) bat - Ejecutar bat.sh'
+    echo '542) change_brightness - Ejecutar change_brightness.sh'
+    echo '543) clic_scrot - Ejecutar clic_scrot.sh'
+    echo '544) debian-00-hacer-carpeta-de-trabajo - Ejecutar debian-00-hacer-carpeta-de-trabajo.sh'
+    echo '545) debian-01-emacs-30 - Ejecutar debian-01-emacs-30.sh'
+    echo '546) debian-02-bash - Ejecutar debian-02-bash.sh'
+    echo '547) debian-03-blueman - Ejecutar debian-03-blueman.sh'
+    echo '548) debian-04-bluez - Ejecutar debian-04-bluez.sh'
+    echo '549) debian-05-chromium - Ejecutar debian-05-chromium.sh'
+    echo '550) debian-06-coreutils - Ejecutar debian-06-coreutils.sh'
+    echo '551) debian-07-dash - Ejecutar debian-07-dash.sh'
+    echo '552) debian-08-dbus - Ejecutar debian-08-dbus.sh'
+    echo '553) debian-09-grep - Ejecutar debian-09-grep.sh'
+    echo '554) debian-10-openbox - Ejecutar debian-10-openbox.sh'
+    echo '555) debian-11-pipewire - Ejecutar debian-11-pipewire.sh'
+    echo '556) debian-12-procps - Ejecutar debian-12-procps.sh'
+    echo '557) debian-13-wireplumber - Ejecutar debian-13-wireplumber.sh'
+    echo '558) debian-14-xbindkeys - Ejecutar debian-14-xbindkeys.sh'
+    echo '559) debian-15-xinit - Ejecutar debian-15-xinit.sh'
+    echo '560) debian-16-xorg-server - Ejecutar debian-16-xorg-server.sh'
+    echo '561) debian-17-openfortivpn - Ejecutar debian-17-openfortivpn.sh'
+    echo '562) debian-17-pavucontrol - Ejecutar debian-17-pavucontrol.sh'
+    echo '563) debian-18-htop - Ejecutar debian-18-htop.sh'
+    echo '564) debian-18-network-manager - Ejecutar debian-18-network-manager.sh'
+    echo '565) debian-19-conky-all - Ejecutar debian-19-conky-all.sh'
+    echo '566) debian-19-gimp - Ejecutar debian-19-gimp.sh'
+    echo '567) debian-20-gnome-shell - Ejecutar debian-20-gnome-shell.sh'
+    echo '568) debian-20-linux-tools-common - Ejecutar debian-20-linux-tools-common.sh'
+    echo '569) debian-21-linux-tools-generic - Ejecutar debian-21-linux-tools-generic.sh'
+    echo '570) debian-21-thermald - Ejecutar debian-21-thermald.sh'
+    echo '571) debian-22-acpid - Ejecutar debian-22-acpid.sh'
+    echo '572) debian-23-avahi-daemon - Ejecutar debian-23-avahi-daemon.sh'
+    echo '573) debian-24-gimp - Ejecutar debian-24-gimp.sh'
+    echo '574) debian-25-htop - Ejecutar debian-25-htop.sh'
+    echo '575) debian-26-openfortivpn - Ejecutar debian-26-openfortivpn.sh'
+    echo '576) debian-27-st - Ejecutar debian-27-st.sh'
+    echo '577) debian-run-all - Ejecutar debian-run-all.sh'
+    echo '578) dev - Ejecutar dev.sh'
+    echo '579) dialog - Ejecutar dialog.sh'
+    echo '580) enfriar-asus - Ejecutar enfriar-asus.sh'
+    echo '581) enfriar-hp - Ejecutar enfriar-hp.sh'
+    echo '582) english-or-german-to-clipboard-on-spanish - Ejecutar english-or-german-to-clipboard-on-spanish.sh'
+    echo '583) exercises_fast - Ejecutar exercises_fast.sh'
+    echo '584) festival-de - Ejecutar festival-de.sh'
+    echo '585) gaming-mode-check - Ejecutar gaming-mode-check.sh'
+    echo '586) hibernacion_real - Ejecutar hibernacion_real.sh'
+    echo '587) init - Ejecutar init.sh'
+    echo '588) input-leap - Ejecutar input-leap.sh'
+    echo '589) install-antigravity-portable - Ejecutar install-antigravity-portable.sh'
+    echo '590) install-antigravity - Ejecutar install-antigravity.sh'
+    echo '591) install-google-chrome-stable - Ejecutar install-google-chrome-stable.sh'
+    echo '592) install-libatk-bridge - Ejecutar install-libatk-bridge.sh'
+    echo '593) install-libatspi - Ejecutar install-libatspi.sh'
+    echo '594) install-libdbus - Ejecutar install-libdbus.sh'
+    echo '595) install-libsystemd - Ejecutar install-libsystemd.sh'
+    echo '596) install-piper - Ejecutar install-piper.sh'
+    echo '597) internet - Ejecutar internet.sh'
+    echo '598) jira-reminder - Ejecutar jira-reminder.sh'
+    echo '599) loopback-tampermonkey-button-server - Ejecutar loopback-tampermonkey-button-server.sh'
+    echo '600) loopback-yad-normal - Ejecutar loopback-yad-normal.sh'
+    echo '601) loopback-yad-server - Ejecutar loopback-yad-server.sh'
+    echo '602) max_power - Ejecutar max_power.sh'
+    echo '603) message_img - Ejecutar message_img.sh'
+    echo '604) min_power - Ejecutar min_power.sh'
+    echo '605) modo_blob - Ejecutar modo_blob.sh'
+    echo '606) modo_optime - Ejecutar modo_optime.sh'
+    echo '607) ocr_core - Ejecutar ocr_core.sh'
+    echo '608) ocr_title_util - Ejecutar ocr_title_util.sh'
+    echo '609) ocr_traducir_captura_HP - Ejecutar ocr_traducir_captura_HP.sh'
+    echo '610) ocr_traducir_captura_HP_bk - Ejecutar ocr_traducir_captura_HP_bk.sh'
+    echo '611) ocr_traducir_captura_HP_googletranslate - Ejecutar ocr_traducir_captura_HP_googletranslate.sh'
+    echo '612) ops360-reminder - Ejecutar ops360-reminder.sh'
+    echo '613) peliculas - Ejecutar peliculas.sh'
+    echo '614) preparar_literatura - Ejecutar preparar_literatura.sh'
+    echo '615) preparar_literatura_bible - Ejecutar preparar_literatura_bible.sh'
+    echo '616) preparar_literatura_old - Ejecutar preparar_literatura_old.sh'
+    echo '617) ram-report - Ejecutar ram-report.sh'
+    echo '618) recscreencast - Ejecutar recscreencast.sh'
+    echo '619) recscreencast_1m - Ejecutar recscreencast_1m.sh'
+    echo '620) recscreencast_3m - Ejecutar recscreencast_3m.sh'
+    echo '621) recscreencast_counting - Ejecutar recscreencast_counting.sh'
+    echo '622) run-reminders - Ejecutar run-reminders.sh'
+    echo '623) screenshot - Ejecutar screenshot.sh'
+    echo '624) script-literatura-core - Ejecutar script-literatura-core.sh'
+    echo '625) script-literatura-lang - Ejecutar script-literatura-lang.sh'
+    echo '626) script-literatura-yad - Ejecutar script-literatura-yad.sh'
+    echo '627) script-literatura - Ejecutar script-literatura.sh'
+    echo '628) second-counter - Ejecutar second-counter.sh'
+    echo '629) set-jbl-mic-100-loop - Ejecutar set-jbl-mic-100-loop.sh'
+    echo '630) set-jbl-mic-100 - Ejecutar set-jbl-mic-100.sh'
+    echo '631) share-the-last-video - Ejecutar share-the-last-video.sh'
+    echo '632) simple_second_counter-N-yad - Ejecutar simple_second_counter-N-yad.sh'
+    echo '633) simple_second_counter-N - Ejecutar simple_second_counter-N.sh'
+    echo '634) simple_second_counter - Ejecutar simple_second_counter.sh'
+    echo '635) simple_second_counter_xterm-N - Ejecutar simple_second_counter_xterm-N.sh'
+    echo '636) simple_second_feh_counter - Ejecutar simple_second_feh_counter.sh'
+    echo '637) sof-snd-dsp - Ejecutar sof-snd-dsp.sh'
+    echo '638) start_reader_system - Ejecutar start_reader_system.sh'
+    echo '639) suspender - Ejecutar suspender.sh'
+    echo '640) suspender_real - Ejecutar suspender_real.sh'
+    echo '641) training-on-left-seconds-a-range-of-N-minute - Ejecutar training-on-left-seconds-a-range-of-N-minute.sh'
+    echo '642) tts_german - Ejecutar tts_german.sh'
+    echo '643) tts_spanish - Ejecutar tts_spanish.sh'
+    echo '644) ubuntu-00-hacer-carpeta-de-trabajo - Ejecutar ubuntu-00-hacer-carpeta-de-trabajo.sh'
+    echo '645) ubuntu-01-emacs-29 - Ejecutar ubuntu-01-emacs-29.sh'
+    echo '646) ubuntu-02-bash - Ejecutar ubuntu-02-bash.sh'
+    echo '647) ubuntu-03-blueman - Ejecutar ubuntu-03-blueman.sh'
+    echo '648) ubuntu-04-bluez - Ejecutar ubuntu-04-bluez.sh'
+    echo '649) ubuntu-05-chromium - Ejecutar ubuntu-05-chromium.sh'
+    echo '650) ubuntu-06-coreutils - Ejecutar ubuntu-06-coreutils.sh'
+    echo '651) ubuntu-07-dash - Ejecutar ubuntu-07-dash.sh'
+    echo '652) ubuntu-08-dbus - Ejecutar ubuntu-08-dbus.sh'
+    echo '653) ubuntu-09-grep - Ejecutar ubuntu-09-grep.sh'
+    echo '654) ubuntu-10-openbox - Ejecutar ubuntu-10-openbox.sh'
+    echo '655) ubuntu-11-pulseaudio - Ejecutar ubuntu-11-pulseaudio.sh'
+    echo '656) ubuntu-12-procps - Ejecutar ubuntu-12-procps.sh'
+    echo '657) ubuntu-13-pavucontrol - Ejecutar ubuntu-13-pavucontrol.sh'
+    echo '658) ubuntu-13-wireplumber - Ejecutar ubuntu-13-wireplumber.sh'
+    echo '659) ubuntu-14-xbindkeys - Ejecutar ubuntu-14-xbindkeys.sh'
+    echo '660) ubuntu-15-xinit - Ejecutar ubuntu-15-xinit.sh'
+    echo '661) ubuntu-16-xorg-server - Ejecutar ubuntu-16-xorg-server.sh'
+    echo '662) ubuntu-17-network-manager - Ejecutar ubuntu-17-network-manager.sh'
+    echo '663) ubuntu-19-gnome-shell - Ejecutar ubuntu-19-gnome-shell.sh'
+    echo '664) ubuntu-20-thermald - Ejecutar ubuntu-20-thermald.sh'
+    echo '665) ubuntu-21-acpid - Ejecutar ubuntu-21-acpid.sh'
+    echo '666) ubuntu-22-avahi-daemon - Ejecutar ubuntu-22-avahi-daemon.sh'
+    echo '667) ubuntu-23-openfortivpn - Ejecutar ubuntu-23-openfortivpn.sh'
+    echo '668) ubuntu-24-htop - Ejecutar ubuntu-24-htop.sh'
+    echo '669) ubuntu-25-gimp - Ejecutar ubuntu-25-gimp.sh'
+    echo '670) ubuntu-26-linux-tools-common - Ejecutar ubuntu-26-linux-tools-common.sh'
+    echo '671) ubuntu-27-linux-tools-generic - Ejecutar ubuntu-27-linux-tools-generic.sh'
+    echo '672) ubuntu-O3-firefox - Ejecutar ubuntu-O3-firefox.sh'
+    echo '673) ubuntu-check-running - Ejecutar ubuntu-check-running.sh'
+    echo '674) ubuntu-generate-missing - Ejecutar ubuntu-generate-missing.sh'
+    echo '675) ubuntu-run-all - Ejecutar ubuntu-run-all.sh'
+    echo '676) update-antigravity-portable - Ejecutar update-antigravity-portable.sh'
+    echo '677) update-antigravity - Ejecutar update-antigravity.sh'
+    echo '678) update-google-chrome-stable - Ejecutar update-google-chrome-stable.sh'
+    echo '679) update-libatk-bridge - Ejecutar update-libatk-bridge.sh'
+    echo '680) update-libatspi - Ejecutar update-libatspi.sh'
+    echo '681) update-libdbus - Ejecutar update-libdbus.sh'
+    echo '682) update-libsystemd - Ejecutar update-libsystemd.sh'
+    echo '683) validate-freebsd-this-machine - Ejecutar validate-freebsd-this-machine.sh'
+    echo '684) validate-openbsd-this-machine - Ejecutar validate-openbsd-this-machine.sh'
+    echo '685) validate-plan9-this-machine - Ejecutar validate-plan9-this-machine.sh'
+    echo '686) vociferate-core - Ejecutar vociferate-core.sh'
+    echo '687) vociferate-pdf - Ejecutar vociferate-pdf.sh'
+    echo '688) audio-sof - Out Laptop + In Mic Laptop (SOF Interno)'
+    echo '689) audio-sof-filter - Out Laptop + In Mic Laptop con Filtro DSP'
+    echo '690) audio-jbl - Out JBL + In Mic JBL Wireless'
+    echo '691) audio-jbl-filter - Out JBL + In Mic JBL con Filtro DSP'
+    echo '692) audio-jbl-loopback-jbl - Out JBL + In JBL + Loopback Mic JBL'
+    echo '693) audio-jbl-filter-loopback-jbl - Out JBL + In JBL + Loopback Mic JBL con Filtro'
+    echo '694) audio-jbl-loopback-sof - Out JBL + In JBL + Loopback Mic Laptop en JBL'
+    echo '695) audio-jbl-filter-loopback-sof - Out JBL + In JBL + Loopback Mic Laptop Filtrado en JBL'
+    echo '696) audio-qa-test - Ejecutar suite de pruebas QA Audio interactiva'
     echo ''
 fi
 
@@ -707,6 +875,524 @@ EOF
     90|chrome_jbl)
 	export DISPLAY=:0
 	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	;;
+    91|Temporizador_Personalizado)
+	printf "Ingrese la cantidad de minutos: "
+	read MINUTOS
+	if [ -n "$MINUTOS" ]; then
+	    dash $HOME/monoliths-llm/timer.sh "$MINUTOS"
+	fi
+	;;
+    92|Ejercicios_Vocales)
+	dash $HOME/monoliths-llm/exercises_nice.sh
+	;;
+    531|170MB-report)
+	dash $HOME/monoliths-llm/170MB-report.sh
+	;;
+    532|4k)
+	dash $HOME/monoliths-llm/4k.sh
+	;;
+    533|JBL-Quantum350-wireless)
+	dash $HOME/monoliths-llm/JBL-Quantum350-wireless.sh
+	;;
+    534|Rocky-linux-8--gnumeric)
+	dash $HOME/monoliths-llm/Rocky-linux-8--gnumeric.sh
+	;;
+    535|Rocky-linux-8-abiword)
+	dash $HOME/monoliths-llm/Rocky-linux-8-abiword.sh
+	;;
+    536|_antigravity_ubuntu-05-chromium)
+	dash $HOME/monoliths-llm/_antigravity_ubuntu-05-chromium.sh
+	;;
+    537|_dialog)
+	dash $HOME/monoliths-llm/_dialog.sh
+	;;
+    538|_rec-to-certain-min)
+	dash $HOME/monoliths-llm/_rec-to-certain-min.sh
+	;;
+    539|a-llm-yad)
+	dash $HOME/monoliths-llm/a-llm-yad.sh
+	;;
+    540|auto)
+	dash $HOME/monoliths-llm/auto.sh
+	;;
+    541|bat)
+	dash $HOME/monoliths-llm/bat.sh
+	;;
+    542|change_brightness)
+	dash $HOME/monoliths-llm/change_brightness.sh
+	;;
+    543|clic_scrot)
+	dash $HOME/monoliths-llm/clic_scrot.sh
+	;;
+    544|debian-00-hacer-carpeta-de-trabajo)
+	dash $HOME/monoliths-llm/debian-00-hacer-carpeta-de-trabajo.sh
+	;;
+    545|debian-01-emacs-30)
+	dash $HOME/monoliths-llm/debian-01-emacs-30.sh
+	;;
+    546|debian-02-bash)
+	dash $HOME/monoliths-llm/debian-02-bash.sh
+	;;
+    547|debian-03-blueman)
+	dash $HOME/monoliths-llm/debian-03-blueman.sh
+	;;
+    548|debian-04-bluez)
+	dash $HOME/monoliths-llm/debian-04-bluez.sh
+	;;
+    549|debian-05-chromium)
+	dash $HOME/monoliths-llm/debian-05-chromium.sh
+	;;
+    550|debian-06-coreutils)
+	dash $HOME/monoliths-llm/debian-06-coreutils.sh
+	;;
+    551|debian-07-dash)
+	dash $HOME/monoliths-llm/debian-07-dash.sh
+	;;
+    552|debian-08-dbus)
+	dash $HOME/monoliths-llm/debian-08-dbus.sh
+	;;
+    553|debian-09-grep)
+	dash $HOME/monoliths-llm/debian-09-grep.sh
+	;;
+    554|debian-10-openbox)
+	dash $HOME/monoliths-llm/debian-10-openbox.sh
+	;;
+    555|debian-11-pipewire)
+	dash $HOME/monoliths-llm/debian-11-pipewire.sh
+	;;
+    556|debian-12-procps)
+	dash $HOME/monoliths-llm/debian-12-procps.sh
+	;;
+    557|debian-13-wireplumber)
+	dash $HOME/monoliths-llm/debian-13-wireplumber.sh
+	;;
+    558|debian-14-xbindkeys)
+	dash $HOME/monoliths-llm/debian-14-xbindkeys.sh
+	;;
+    559|debian-15-xinit)
+	dash $HOME/monoliths-llm/debian-15-xinit.sh
+	;;
+    560|debian-16-xorg-server)
+	dash $HOME/monoliths-llm/debian-16-xorg-server.sh
+	;;
+    561|debian-17-openfortivpn)
+	dash $HOME/monoliths-llm/debian-17-openfortivpn.sh
+	;;
+    562|debian-17-pavucontrol)
+	dash $HOME/monoliths-llm/debian-17-pavucontrol.sh
+	;;
+    563|debian-18-htop)
+	dash $HOME/monoliths-llm/debian-18-htop.sh
+	;;
+    564|debian-18-network-manager)
+	dash $HOME/monoliths-llm/debian-18-network-manager.sh
+	;;
+    565|debian-19-conky-all)
+	dash $HOME/monoliths-llm/debian-19-conky-all.sh
+	;;
+    566|debian-19-gimp)
+	dash $HOME/monoliths-llm/debian-19-gimp.sh
+	;;
+    567|debian-20-gnome-shell)
+	dash $HOME/monoliths-llm/debian-20-gnome-shell.sh
+	;;
+    568|debian-20-linux-tools-common)
+	dash $HOME/monoliths-llm/debian-20-linux-tools-common.sh
+	;;
+    569|debian-21-linux-tools-generic)
+	dash $HOME/monoliths-llm/debian-21-linux-tools-generic.sh
+	;;
+    570|debian-21-thermald)
+	dash $HOME/monoliths-llm/debian-21-thermald.sh
+	;;
+    571|debian-22-acpid)
+	dash $HOME/monoliths-llm/debian-22-acpid.sh
+	;;
+    572|debian-23-avahi-daemon)
+	dash $HOME/monoliths-llm/debian-23-avahi-daemon.sh
+	;;
+    573|debian-24-gimp)
+	dash $HOME/monoliths-llm/debian-24-gimp.sh
+	;;
+    574|debian-25-htop)
+	dash $HOME/monoliths-llm/debian-25-htop.sh
+	;;
+    575|debian-26-openfortivpn)
+	dash $HOME/monoliths-llm/debian-26-openfortivpn.sh
+	;;
+    576|debian-27-st)
+	dash $HOME/monoliths-llm/debian-27-st.sh
+	;;
+    577|debian-run-all)
+	dash $HOME/monoliths-llm/debian-run-all.sh
+	;;
+    578|dev)
+	dash $HOME/monoliths-llm/dev.sh
+	;;
+    579|dialog)
+	dash $HOME/monoliths-llm/dialog.sh
+	;;
+    580|enfriar-asus)
+	dash $HOME/monoliths-llm/enfriar-asus.sh
+	;;
+    581|enfriar-hp)
+	dash $HOME/monoliths-llm/enfriar-hp.sh
+	;;
+    582|english-or-german-to-clipboard-on-spanish)
+	dash $HOME/monoliths-llm/english-or-german-to-clipboard-on-spanish.sh
+	;;
+    583|exercises_fast)
+	dash $HOME/monoliths-llm/exercises_fast.sh
+	;;
+    584|festival-de)
+	dash $HOME/monoliths-llm/festival-de.sh
+	;;
+    585|gaming-mode-check)
+	dash $HOME/monoliths-llm/gaming-mode-check.sh
+	;;
+    586|hibernacion_real)
+	dash $HOME/monoliths-llm/hibernacion_real.sh
+	;;
+    587|init)
+	dash $HOME/monoliths-llm/init.sh
+	;;
+    588|input-leap)
+	dash $HOME/monoliths-llm/input-leap.sh
+	;;
+    589|install-antigravity-portable)
+	dash $HOME/monoliths-llm/install-antigravity-portable.sh
+	;;
+    590|install-antigravity)
+	dash $HOME/monoliths-llm/install-antigravity.sh
+	;;
+    591|install-google-chrome-stable)
+	dash $HOME/monoliths-llm/install-google-chrome-stable.sh
+	;;
+    592|install-libatk-bridge)
+	dash $HOME/monoliths-llm/install-libatk-bridge.sh
+	;;
+    593|install-libatspi)
+	dash $HOME/monoliths-llm/install-libatspi.sh
+	;;
+    594|install-libdbus)
+	dash $HOME/monoliths-llm/install-libdbus.sh
+	;;
+    595|install-libsystemd)
+	dash $HOME/monoliths-llm/install-libsystemd.sh
+	;;
+    596|install-piper)
+	dash $HOME/monoliths-llm/install-piper.sh
+	;;
+    597|internet)
+	dash $HOME/monoliths-llm/internet.sh
+	;;
+    598|jira-reminder)
+	dash $HOME/monoliths-llm/jira-reminder.sh
+	;;
+    599|loopback-tampermonkey-button-server)
+	dash $HOME/monoliths-llm/loopback-tampermonkey-button-server.sh
+	;;
+    600|loopback-yad-normal)
+	dash $HOME/monoliths-llm/loopback-yad-normal.sh
+	;;
+    601|loopback-yad-server)
+	dash $HOME/monoliths-llm/loopback-yad-server.sh
+	;;
+    602|max_power)
+	dash $HOME/monoliths-llm/max_power.sh
+	;;
+    603|message_img)
+	dash $HOME/monoliths-llm/message_img.sh
+	;;
+    604|min_power)
+	dash $HOME/monoliths-llm/min_power.sh
+	;;
+    605|modo_blob)
+	dash $HOME/monoliths-llm/modo_blob.sh
+	;;
+    606|modo_optime)
+	dash $HOME/monoliths-llm/modo_optime.sh
+	;;
+    607|ocr_core)
+	dash $HOME/monoliths-llm/ocr_core.sh
+	;;
+    608|ocr_title_util)
+	dash $HOME/monoliths-llm/ocr_title_util.sh
+	;;
+    609|ocr_traducir_captura_HP)
+	dash $HOME/monoliths-llm/ocr_traducir_captura_HP.sh
+	;;
+    610|ocr_traducir_captura_HP_bk)
+	dash $HOME/monoliths-llm/ocr_traducir_captura_HP_bk.sh
+	;;
+    611|ocr_traducir_captura_HP_googletranslate)
+	dash $HOME/monoliths-llm/ocr_traducir_captura_HP_googletranslate.sh
+	;;
+    612|ops360-reminder)
+	dash $HOME/monoliths-llm/ops360-reminder.sh
+	;;
+    613|peliculas)
+	dash $HOME/monoliths-llm/peliculas.sh
+	;;
+    614|preparar_literatura)
+	dash $HOME/monoliths-llm/preparar_literatura.sh
+	;;
+    615|preparar_literatura_bible)
+	dash $HOME/monoliths-llm/preparar_literatura_bible.sh
+	;;
+    616|preparar_literatura_old)
+	dash $HOME/monoliths-llm/preparar_literatura_old.sh
+	;;
+    617|ram-report)
+	dash $HOME/monoliths-llm/ram-report.sh
+	;;
+    618|recscreencast)
+	dash $HOME/monoliths-llm/recscreencast.sh
+	;;
+    619|recscreencast_1m)
+	dash $HOME/monoliths-llm/recscreencast_1m.sh
+	;;
+    620|recscreencast_3m)
+	dash $HOME/monoliths-llm/recscreencast_3m.sh
+	;;
+    621|recscreencast_counting)
+	dash $HOME/monoliths-llm/recscreencast_counting.sh
+	;;
+    622|run-reminders)
+	dash $HOME/monoliths-llm/run-reminders.sh
+	;;
+    623|screenshot)
+	dash $HOME/monoliths-llm/screenshot.sh
+	;;
+    624|script-literatura-core)
+	dash $HOME/monoliths-llm/script-literatura-core.sh
+	;;
+    625|script-literatura-lang)
+	dash $HOME/monoliths-llm/script-literatura-lang.sh
+	;;
+    626|script-literatura-yad)
+	dash $HOME/monoliths-llm/script-literatura-yad.sh
+	;;
+    627|script-literatura)
+	dash $HOME/monoliths-llm/script-literatura.sh
+	;;
+    628|second-counter)
+	dash $HOME/monoliths-llm/second-counter.sh
+	;;
+    629|set-jbl-mic-100-loop)
+	dash $HOME/monoliths-llm/set-jbl-mic-100-loop.sh
+	;;
+    630|set-jbl-mic-100)
+	dash $HOME/monoliths-llm/set-jbl-mic-100.sh
+	;;
+    631|share-the-last-video)
+	dash $HOME/monoliths-llm/share-the-last-video.sh
+	;;
+    632|simple_second_counter-N-yad)
+	dash $HOME/monoliths-llm/simple_second_counter-N-yad.sh
+	;;
+    633|simple_second_counter-N)
+	dash $HOME/monoliths-llm/simple_second_counter-N.sh
+	;;
+    634|simple_second_counter)
+	dash $HOME/monoliths-llm/simple_second_counter.sh
+	;;
+    635|simple_second_counter_xterm-N)
+	dash $HOME/monoliths-llm/simple_second_counter_xterm-N.sh
+	;;
+    636|simple_second_feh_counter)
+	dash $HOME/monoliths-llm/simple_second_feh_counter.sh
+	;;
+    637|sof-snd-dsp)
+	dash $HOME/monoliths-llm/sof-snd-dsp.sh
+	;;
+    638|start_reader_system)
+	dash $HOME/monoliths-llm/start_reader_system.sh
+	;;
+    639|suspender)
+	dash $HOME/monoliths-llm/suspender.sh
+	;;
+    640|suspender_real)
+	dash $HOME/monoliths-llm/suspender_real.sh
+	;;
+    641|training-on-left-seconds-a-range-of-N-minute)
+	dash $HOME/monoliths-llm/training-on-left-seconds-a-range-of-N-minute.sh
+	;;
+    642|tts_german)
+	dash $HOME/monoliths-llm/tts_german.sh
+	;;
+    643|tts_spanish)
+	dash $HOME/monoliths-llm/tts_spanish.sh
+	;;
+    644|ubuntu-00-hacer-carpeta-de-trabajo)
+	dash $HOME/monoliths-llm/ubuntu-00-hacer-carpeta-de-trabajo.sh
+	;;
+    645|ubuntu-01-emacs-29)
+	dash $HOME/monoliths-llm/ubuntu-01-emacs-29.sh
+	;;
+    646|ubuntu-02-bash)
+	dash $HOME/monoliths-llm/ubuntu-02-bash.sh
+	;;
+    647|ubuntu-03-blueman)
+	dash $HOME/monoliths-llm/ubuntu-03-blueman.sh
+	;;
+    648|ubuntu-04-bluez)
+	dash $HOME/monoliths-llm/ubuntu-04-bluez.sh
+	;;
+    649|ubuntu-05-chromium)
+	dash $HOME/monoliths-llm/ubuntu-05-chromium.sh
+	;;
+    650|ubuntu-06-coreutils)
+	dash $HOME/monoliths-llm/ubuntu-06-coreutils.sh
+	;;
+    651|ubuntu-07-dash)
+	dash $HOME/monoliths-llm/ubuntu-07-dash.sh
+	;;
+    652|ubuntu-08-dbus)
+	dash $HOME/monoliths-llm/ubuntu-08-dbus.sh
+	;;
+    653|ubuntu-09-grep)
+	dash $HOME/monoliths-llm/ubuntu-09-grep.sh
+	;;
+    654|ubuntu-10-openbox)
+	dash $HOME/monoliths-llm/ubuntu-10-openbox.sh
+	;;
+    655|ubuntu-11-pulseaudio)
+	dash $HOME/monoliths-llm/ubuntu-11-pulseaudio.sh
+	;;
+    656|ubuntu-12-procps)
+	dash $HOME/monoliths-llm/ubuntu-12-procps.sh
+	;;
+    657|ubuntu-13-pavucontrol)
+	dash $HOME/monoliths-llm/ubuntu-13-pavucontrol.sh
+	;;
+    658|ubuntu-13-wireplumber)
+	dash $HOME/monoliths-llm/ubuntu-13-wireplumber.sh
+	;;
+    659|ubuntu-14-xbindkeys)
+	dash $HOME/monoliths-llm/ubuntu-14-xbindkeys.sh
+	;;
+    660|ubuntu-15-xinit)
+	dash $HOME/monoliths-llm/ubuntu-15-xinit.sh
+	;;
+    661|ubuntu-16-xorg-server)
+	dash $HOME/monoliths-llm/ubuntu-16-xorg-server.sh
+	;;
+    662|ubuntu-17-network-manager)
+	dash $HOME/monoliths-llm/ubuntu-17-network-manager.sh
+	;;
+    663|ubuntu-19-gnome-shell)
+	dash $HOME/monoliths-llm/ubuntu-19-gnome-shell.sh
+	;;
+    664|ubuntu-20-thermald)
+	dash $HOME/monoliths-llm/ubuntu-20-thermald.sh
+	;;
+    665|ubuntu-21-acpid)
+	dash $HOME/monoliths-llm/ubuntu-21-acpid.sh
+	;;
+    666|ubuntu-22-avahi-daemon)
+	dash $HOME/monoliths-llm/ubuntu-22-avahi-daemon.sh
+	;;
+    667|ubuntu-23-openfortivpn)
+	dash $HOME/monoliths-llm/ubuntu-23-openfortivpn.sh
+	;;
+    668|ubuntu-24-htop)
+	dash $HOME/monoliths-llm/ubuntu-24-htop.sh
+	;;
+    669|ubuntu-25-gimp)
+	dash $HOME/monoliths-llm/ubuntu-25-gimp.sh
+	;;
+    670|ubuntu-26-linux-tools-common)
+	dash $HOME/monoliths-llm/ubuntu-26-linux-tools-common.sh
+	;;
+    671|ubuntu-27-linux-tools-generic)
+	dash $HOME/monoliths-llm/ubuntu-27-linux-tools-generic.sh
+	;;
+    672|ubuntu-O3-firefox)
+	dash $HOME/monoliths-llm/ubuntu-O3-firefox.sh
+	;;
+    673|ubuntu-check-running)
+	dash $HOME/monoliths-llm/ubuntu-check-running.sh
+	;;
+    674|ubuntu-generate-missing)
+	dash $HOME/monoliths-llm/ubuntu-generate-missing.sh
+	;;
+    675|ubuntu-run-all)
+	dash $HOME/monoliths-llm/ubuntu-run-all.sh
+	;;
+    676|update-antigravity-portable)
+	dash $HOME/monoliths-llm/update-antigravity-portable.sh
+	;;
+    677|update-antigravity)
+	dash $HOME/monoliths-llm/update-antigravity.sh
+	;;
+    678|update-google-chrome-stable)
+	dash $HOME/monoliths-llm/update-google-chrome-stable.sh
+	;;
+    679|update-libatk-bridge)
+	dash $HOME/monoliths-llm/update-libatk-bridge.sh
+	;;
+    680|update-libatspi)
+	dash $HOME/monoliths-llm/update-libatspi.sh
+	;;
+    681|update-libdbus)
+	dash $HOME/monoliths-llm/update-libdbus.sh
+	;;
+    682|update-libsystemd)
+	dash $HOME/monoliths-llm/update-libsystemd.sh
+	;;
+    683|validate-freebsd-this-machine)
+	dash $HOME/monoliths-llm/validate-freebsd-this-machine.sh
+	;;
+    684|validate-openbsd-this-machine)
+	dash $HOME/monoliths-llm/validate-openbsd-this-machine.sh
+	;;
+    685|validate-plan9-this-machine)
+	dash $HOME/monoliths-llm/validate-plan9-this-machine.sh
+	;;
+    686|vociferate-core)
+	dash $HOME/monoliths-llm/vociferate-core.sh
+	;;
+    687|vociferate-pdf)
+	dash $HOME/monoliths-llm/vociferate-pdf.sh
+	;;
+    688|audio-sof|OUT=sof-snd-dsp-IN=sof-snd-dsp)
+	export DISPLAY=:0
+	bash $HOME/monoliths-llm/OUT=sof-snd-dsp-IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
+	;;
+    689|audio-sof-filter|OUT=sof-snd-dsp-IN=sof-snd-dsp-IN-FILTER)
+	bash $HOME/monoliths-llm/OUT=sof-snd-dsp-IN=sof-snd-dsp-IN-FILTER.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
+	;;
+    690|audio-jbl|OUT=jbl-usb-wireless-IN=jbl-usb-wireless)
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	;;
+    691|audio-jbl-filter|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER)
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	;;
+    692|audio-jbl-loopback-jbl|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless)
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	;;
+    693|audio-jbl-filter-loopback-jbl|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless)
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	;;
+    694|audio-jbl-loopback-sof|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp)
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	;;
+    695|audio-jbl-filter-loopback-sof|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp)
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	;;
+    696|audio-qa-test|qa_audio_test_plan)
+	bash $HOME/monoliths-llm/qa_audio_test_plan.sh
+	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     *)
 	echo 'Opción no mapeada.'
