@@ -153,3 +153,40 @@ python3 ~/type-to-move-cursor/info_show.py ~/type-to-move-cursor/info.us.txt
 # Alemán
 python3 ~/type-to-move-cursor/info_show.py ~/type-to-move-cursor/info.de.txt
 ```
+
+---
+
+## 🎙️ 5. Reconocimiento de Voz a Texto Nativo en Google Chrome (Web Speech API)
+
+Integración y arquitectura validada para el reconocimiento continuo de voz a texto nativo (**Google Web Speech API / `SpeechRecognition`**) sobre **ALSA puro** sin PulseAudio ni PipeWire, usando los auriculares **JBL Quantum 350 Wireless** y el micrófono interno de la laptop (**Intel SOF**).
+
+### ⚙️ Arquitectura Técnica de Funcionamiento
+1. **Salida de Audio (Playback):** Auriculares inalámbricos **JBL Quantum 350** (`hw:Wireless,0` vía plug `dmix_speaker`).
+2. **Entrada de Audio para Chrome (Capture / STT):** Micrófono interno de la laptop vía **Intel SOF** (`snd_sof_pci_intel_tgl`).
+3. **Endpoint de Hardware Nativo 16 kHz (`DMIC16kHz`):**
+   - El motor de Google Speech en Chromium exige estrictamente **16.000 Hz (16 kHz)**.
+   - Para evitar bloqueos por falta de módulos de software externos de resampleo (`libasound_module_rate_speexrate_medium.so`), se conecta directamente al dispositivo de hardware **`hw:sofhdadsp,7` (`DMIC16kHz`)**.
+   - El descriptor `pcm.dsnoop_sof` entrega muestras a 16 kHz nativas de hardware 1:1.
+4. **Controles de Mixer ALSA (`ctl.*`):**
+   - Chrome ejecuta `snd_ctl_open` al iniciar con `--alsa-input-device=microfono_laptop`. Los constructores de sesión inyectan los bloques correspondientes (`ctl.microfono_laptop`, `ctl.sof_snd_dsp`, `ctl.entrada_buena_jbl`, etc.) apuntando a sus respectivas tarjetas.
+5. **Configuración de Rate Converter:**
+   - Se incluye `defaults.pcm.rate_converter "linear"` en `~/.asoundrc` para compatibilidad total de resampleo interno en ALSA.
+
+### 🚀 Cómo Iniciar y Probar la Sesión
+
+1. **Lanzar el perfil de audio (ejemplo opción `690` en `my.shell.sh`):**
+   ```bash
+   bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-CHROME-IN=sof-snd-dsp.sh
+   ```
+2. **Lanzar Google Chrome con soporte ALSA:**
+   ```bash
+   pkill -9 chrome; sleep 0.2
+   setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop "http://localhost:8080/speech-test.html"
+   ```
+3. **Página de Prueba Local:**
+   ```bash
+   # En /home/user/monoliths-hm:
+   python3 -m http.server 8080
+   ```
+   Abre en Chrome **`http://localhost:8080/speech-test.html`**, presiona **`🎤 Iniciar Reconocimiento`** y habla con normalidad para ver la transcripción en tiempo real.
+

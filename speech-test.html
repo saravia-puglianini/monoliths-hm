@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prueba de Voz a Texto Nativa (SpeechRecognition)</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --border: #334155;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 760px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 1.6rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+      align-items: center;
+    }
+
+    select, button {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    select {
+      background-color: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button.btn-primary {
+      background-color: var(--accent);
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    button.btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    button.btn-danger {
+      background-color: var(--danger);
+      color: white;
+      font-weight: 700;
+    }
+
+    button.btn-secondary {
+      background-color: #334155;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      color: var(--text-muted);
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #64748b;
+    }
+
+    .dot.recording {
+      background-color: var(--danger);
+      box-shadow: 0 0 12px var(--danger);
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(1.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .output-box {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      min-height: 160px;
+      max-height: 280px;
+      overflow-y: auto;
+      line-height: 1.6;
+      font-size: 1.15rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .final-text {
+      color: #f8fafc;
+      font-weight: 500;
+    }
+
+    .interim-text {
+      color: #38bdf8;
+      font-style: italic;
+      opacity: 0.85;
+    }
+
+    .placeholder-text {
+      color: #475569;
+      font-style: italic;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .alert-error {
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .log-box {
+      margin-top: 15px;
+      background: #050811;
+      border: 1px solid #1e293b;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .log-entry { margin: 2px 0; }
+    .log-entry.success { color: #86efac; }
+    .log-entry.warn { color: #fde047; }
+    .log-entry.err { color: #fca5a5; }
+    .log-entry.highlight { color: #38bdf8; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🎙️ Reconocimiento de Voz Nativo (Chrome)</h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: -5px;">
+    Prueba de <strong>SpeechRecognition</strong> en modo directo y exclusivo para ALSA.
+  </p>
+
+  <div class="controls">
+    <button id="toggleBtn" class="btn-primary">🎤 Iniciar Reconocimiento</button>
+    <button id="clearBtn" class="btn-secondary">🗑️ Limpiar Texto</button>
+    <select id="langSelect">
+      <option value="es-ES">Español (España)</option>
+      <option value="es-MX" selected>Español (México)</option>
+      <option value="es-CO">Español (Colombia)</option>
+      <option value="es-US">Español (Estados Unidos)</option>
+      <option value="en-US">English (US)</option>
+    </select>
+  </div>
+
+  <div class="status-indicator">
+    <div id="statusDot" class="dot"></div>
+    <span id="statusText">Inactivo. Haz clic en "Iniciar Reconocimiento".</span>
+  </div>
+
+  <div class="output-box" id="output">
+    <span id="placeholder" class="placeholder-text">El texto transcrito aparecerá aquí...</span>
+    <span id="finalText" class="final-text"></span>
+    <span id="interimText" class="interim-text"></span>
+  </div>
+
+  <div id="alertBox" class="alert alert-error"></div>
+
+  <div class="log-box" id="debugLog">
+    <div class="log-entry highlight">=== Monitor de eventos Web Speech API iniciado ===</div>
+  </div>
+</div>
+
+<script>
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const toggleBtn = document.getElementById('toggleBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const langSelect = document.getElementById('langSelect');
+  const placeholderEl = document.getElementById('placeholder');
+  const finalTextEl = document.getElementById('finalText');
+  const interimTextEl = document.getElementById('interimText');
+  const statusText = document.getElementById('statusText');
+  const statusDot = document.getElementById('statusDot');
+  const alertBox = document.getElementById('alertBox');
+  const outputEl = document.getElementById('output');
+  const debugLog = document.getElementById('debugLog');
+
+  let recognition = null;
+  let userWantsListening = false;
+
+  function log(msg, type = '') {
+    const time = new Date().toLocaleTimeString();
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${type}`;
+    entry.textContent = `[${time}] ${msg}`;
+    debugLog.appendChild(entry);
+    debugLog.scrollTop = debugLog.scrollHeight;
+  }
+
+  function showAlert(msg) {
+    alertBox.innerHTML = msg;
+    alertBox.style.display = 'block';
+  }
+
+  function hideAlert() {
+    alertBox.style.display = 'none';
+  }
+
+  if (!SpeechRecognition) {
+    showAlert('❌ Este navegador no soporta la Web Speech API nativa (SpeechRecognition).');
+    toggleBtn.disabled = true;
+  } else {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      statusDot.classList.add('recording');
+      statusText.textContent = `Escuchando (${langSelect.value})... ¡habla ahora!`;
+      toggleBtn.textContent = '⏹️ Detener Reconocimiento';
+      toggleBtn.className = 'btn-danger';
+      log(`SpeechRecognition: Sesión iniciada en ${recognition.lang}`, 'success');
+      hideAlert();
+    };
+
+    recognition.onaudiostart = () => log('Audio: Captura de audio iniciada en Chrome', 'success');
+    recognition.onsoundstart = () => log('Sonido detectado en el micrófono', 'highlight');
+    recognition.onspeechstart = () => log('Voz humana detectada: Procesando en Google Speech...', 'highlight');
+    recognition.onspeechend = () => log('Voz pausada: Finalizando frase...', 'warn');
+
+    recognition.onerror = (event) => {
+      log(`SpeechRecognition ERROR: ${event.error}`, 'err');
+      if (event.error === 'no-speech') {
+        log('No se detectó voz en este fragmento.', 'warn');
+      } else if (event.error === 'audio-capture') {
+        showAlert('❌ <b>Error audio-capture</b>: Chrome no pudo acceder al dispositivo de captura de audio.');
+      }
+    };
+
+    recognition.onend = () => {
+      log('SpeechRecognition: Sesión finalizada por el motor', 'warn');
+      if (userWantsListening) {
+        log('Reenganchando reconocimiento...', 'highlight');
+        setTimeout(() => {
+          if (userWantsListening) {
+            try { recognition.start(); } catch(e) { log(`Error al reenganchar: ${e.message}`, 'err'); }
+          }
+        }, 150);
+      } else {
+        statusDot.classList.remove('recording');
+        statusText.textContent = 'Inactivo.';
+        toggleBtn.textContent = '🎤 Iniciar Reconocimiento';
+        toggleBtn.className = 'btn-primary';
+      }
+    };
+
+    recognition.onresult = (event) => {
+      placeholderEl.style.display = 'none';
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTextEl.textContent += transcript + ' ';
+          log(`TRANSCRIPCIÓN FINAL: "${transcript}"`, 'success');
+        } else {
+          interim += transcript;
+          log(`Parcial: "${transcript}"`, 'highlight');
+        }
+      }
+      interimTextEl.textContent = interim;
+      outputEl.scrollTop = outputEl.scrollHeight;
+    };
+
+    toggleBtn.addEventListener('click', () => {
+      if (userWantsListening) {
+        userWantsListening = false;
+        recognition.stop();
+      } else {
+        userWantsListening = true;
+        recognition.lang = langSelect.value;
+        log(`Iniciando SpeechRecognition en ${recognition.lang}...`);
+        try {
+          recognition.start();
+        } catch (e) {
+          log(`Error start(): ${e.message}`, 'err');
+        }
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      finalTextEl.textContent = '';
+      interimTextEl.textContent = '';
+      placeholderEl.style.display = 'inline';
+      hideAlert();
+    });
+  }
+</script>
+</body>
+</html>

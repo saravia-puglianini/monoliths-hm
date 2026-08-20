@@ -276,6 +276,7 @@ if [ -z "$PARAM" ]; then
     echo '694) audio-jbl-loopback-sof - Out JBL + In JBL + Loopback Mic Laptop en JBL'
     echo '695) audio-jbl-filter-loopback-sof - Out JBL + In JBL + Loopback Mic Laptop Filtrado en JBL'
     echo '696) audio-qa-test - Ejecutar suite de pruebas QA Audio interactiva'
+    echo '697) audio-stop / detener-todos-los-modulos-de-audio - Detener y descargar todos los módulos y procesos de audio'
     echo ''
 fi
 
@@ -770,7 +771,7 @@ EOF
 	folder='chromium-new-profile-ticket-erc'; mkdir -p "$HOME/.$folder" && setsid google-chrome-stable --user-data-dir="$HOME/.$folder" > /dev/null 2>&1 ;
 	;;
     74|GChrome_Profile_Tmp)
-	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && tmpfolder="/tmp/chromium-new-profile-tmp-$(date +%Y%M%d%M%S)"; mkdir -p "$tmpfolder"; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl --user-data-dir="$tmpfolder" > /dev/null 2>&1 ;
+	tmpfolder="/tmp/chromium-new-profile-tmp-$(date +%Y%M%d%M%S)"; mkdir -p "$tmpfolder"; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop --user-data-dir="$tmpfolder" > /dev/null 2>&1 ;
 	;;
     75|Emwm_$Laptop)
 	# 1. Asegurar que Xephyr sabe dónde abrirse localmente (tu pantalla principal)
@@ -870,11 +871,11 @@ EOF
 	;;
     89|chrome)
 	export DISPLAY=:0
-	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena
+	setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena
 	;;
     90|chrome_jbl)
 	export DISPLAY=:0
-	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     91|Temporizador_Personalizado)
 	printf "Ingrese la cantidad de minutos: "
@@ -1360,39 +1361,42 @@ EOF
     688|audio-sof|OUT=sof-snd-dsp-IN=sof-snd-dsp)
 	export DISPLAY=:0
 	bash $HOME/monoliths-llm/OUT=sof-snd-dsp-IN=sof-snd-dsp.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     689|audio-sof-filter|OUT=sof-snd-dsp-IN=sof-snd-dsp-IN-FILTER)
 	bash $HOME/monoliths-llm/OUT=sof-snd-dsp-IN=sof-snd-dsp-IN-FILTER.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     690|audio-jbl|OUT=jbl-usb-wireless-IN=jbl-usb-wireless)
-	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-CHROME-IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     691|audio-jbl-filter|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER)
-	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-CHROME-IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     692|audio-jbl-loopback-jbl|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless)
-	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless-CHROME-IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     693|audio-jbl-filter-loopback-jbl|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless)
-	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless-CHROME-IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     694|audio-jbl-loopback-sof|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp)
-	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp-CHROME-IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     695|audio-jbl-filter-loopback-sof|OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp)
-	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl
+	bash $HOME/monoliths-llm/OUT=jbl-usb-wireless-IN=jbl-usb-wireless-FILTER-LOOPBACK=jbl-usb-wireless+IN=sof-snd-dsp-CHROME-IN=sof-snd-dsp.sh
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
 	;;
     696|audio-qa-test|qa_audio_test_plan)
 	bash $HOME/monoliths-llm/qa_audio_test_plan.sh
-	pkill -9 chrome; sleep 0.1; ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
+	pkill -9 chrome; sleep 0.1; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
+	;;
+    697|audio-stop|detener-todos-los-modulos-de-audio|detener-todos-los-modulos-de-audio.sh)
+	bash $HOME/monoliths-llm/detener-todos-los-modulos-de-audio.sh
 	;;
     *)
 	echo 'Opción no mapeada.'

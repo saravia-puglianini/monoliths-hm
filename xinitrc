@@ -312,7 +312,7 @@ EOF
             sleep 0.5
         done &
     fi
-    exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
+    exec alt_tab_maximize_emacs-buffer_only-session > "$HOME/.alt_tab_maximize_emacs-buffer_only-session.log" 2>&1
 fi
 
 # doas /home/user/monoliths-llm/gaming-mode.sh
