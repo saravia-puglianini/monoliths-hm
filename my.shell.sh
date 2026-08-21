@@ -99,6 +99,7 @@ if [ -z "$PARAM" ]; then
     echo '79) Tmux_USA - Tmux USA'
     echo '80) Luz_Off_Pantalla - apagar la luz de la pantalla'
     echo '81) Max_Energy - Perfil non-powersave brutal'
+    echo '811) Min_Energy_Remove_Modules - Perfil ultra powersave y apagado de módulos'
     echo '82) Ver_Log - Ver log del jira'
     echo '83) Google_Chrome_No_Inhibit - Mantener tty encendida'
     echo '84) Firefox_Tmp - Firefox tmp'
@@ -843,6 +844,13 @@ EOF
 	;;
     81|Max_Energy)
 	doas $HOME/monoliths-llm/gaming-mode.sh
+	;;
+    811|Min_Energy_Remove_Modules|min-energy-remove-modules)
+	if [ -f "$HOME/monoliths-llm/min-energy-remove-modules.sh" ]; then
+	    doas "$HOME/monoliths-llm/min-energy-remove-modules.sh"
+	else
+	    doas "$HOME/monoliths-hm/min-energy-remove-modules.sh"
+	fi
 	;;
     82|Ver_Log)
 	bash $HOME/monoliths-llm/ver-horas.sh &
