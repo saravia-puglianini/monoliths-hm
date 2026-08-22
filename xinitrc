@@ -264,9 +264,10 @@ CURRENT_TTY=$(tty)
 # 4. Lanzar aplicaciones de trabajo (con & para que no bloqueen el inicio)
 NOGUI=false
 
-pgrep xbindkeys | xargs kill
+pgrep xbindkeys | xargs kill 2>/dev/null
+pgrep hotkey_listener_asm | xargs kill 2>/dev/null
 sleep 0.1
-sleep 1.5 && xbindkeys &
+sleep 1.5 && hotkey_listener_asm &
 
 # Ahorro de energía: si no está conectado a la corriente, ejecutar únicamente emacs y menú yad (con gestor de ventanas)
 if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_supply/ADP1/online)" = "0" ]; then
