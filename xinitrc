@@ -312,7 +312,18 @@ EOF
             sleep 0.5
         done &
     fi
-    exec alt_tab_maximize_emacs_asm-session > "$HOME/.alt_tab_maximize_emacs-buffer_only-session.log" 2>&1
+    ASM_LOG="$HOME/.alt_tab_maximize_only-session-asm.log"
+    echo "=== [BATTERY MODE] Iniciando alt_tab_maximize_emacs_asm [$(date)] ===" >> "$ASM_LOG"
+    alt_tab_maximize_emacs_asm-session >> "$ASM_LOG" 2>&1
+    EXIT_CODE=$?
+    echo "=== [BATTERY MODE] alt_tab_maximize_emacs_asm terminó/falló con código: $EXIT_CODE [$(date)] ===" >> "$ASM_LOG"
+
+    echo "=== [BATTERY MODE] Levantando Window Manager Fallback [$(date)] ===" >> "$HOME/.alt_tab_maximize_emacs-buffer_only-session.log"
+    if [ -f "$HOME/alt_tab_maximize_emacs-buffer_only/alt_tab_maximize_emacs-buffer_only-session" ]; then
+        exec alt_tab_maximize_emacs-buffer_only-session >> "$HOME/.alt_tab_maximize_emacs-buffer_only-session.log" 2>&1
+    else
+        exec alt_tab_maximize_only-session >> "$HOME/.alt_tab_maximize_emacs-buffer_only-session.log" 2>&1
+    fi
 fi
 
 # doas /home/user/monoliths-llm/gaming-mode.sh
@@ -400,11 +411,20 @@ if doas dmesg | grep -q ZenBook > /dev/null; then
 fi
 
 if ! $NOGUI; then
-    if which alt_tab_maximize_emacs_asm-session >/dev/null 2>&1; then
-	exec alt_tab_maximize_emacs_asm-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
-    elif [ -f $HOME/alt_tab_maximize_emacs-buffer_only/alt_tab_maximize_emacs-buffer_only-session ]; then
-	exec alt_tab_maximize_emacs-buffer_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
+    ASM_LOG="$HOME/.alt_tab_maximize_only-session-asm.log"
+    echo "=== Iniciando alt_tab_maximize_emacs_asm [$(date)] ===" >> "$ASM_LOG"
+    
+    # Ejecutar versión ASM capturando stdout y stderr
+    alt_tab_maximize_emacs_asm-session >> "$ASM_LOG" 2>&1
+    EXIT_CODE=$?
+    
+    echo "=== alt_tab_maximize_emacs_asm terminó/falló con código: $EXIT_CODE [$(date)] ===" >> "$ASM_LOG"
+
+    # Si la versión ASM finaliza o crashea, levantar automáticamente el fallback
+    echo "=== Levantando Window Manager Fallback [$(date)] ===" >> "$HOME/.alt_tab_maximize_only-session.log"
+    if [ -f "$HOME/alt_tab_maximize_emacs-buffer_only/alt_tab_maximize_emacs-buffer_only-session" ]; then
+        exec alt_tab_maximize_emacs-buffer_only-session >> "$HOME/.alt_tab_maximize_only-session.log" 2>&1
     else
-	exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
+        exec alt_tab_maximize_only-session >> "$HOME/.alt_tab_maximize_only-session.log" 2>&1
     fi
 fi
