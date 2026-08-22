@@ -760,10 +760,24 @@ EOF
 	echo "Velocidad del touchpad aumentada (Synaptics)."
 	;;
     70|Chromium_LuisAProfile)
-        mkdir -p $HOME/.chromium_luis_a_profile_tikets && setsid google-chrome-stable --user-data-dir=$HOME/.chromium_luis_a_profile_tikets > /dev/null 2>&1 ;
+	HP_PARAM=''
+	ASUS_PARAM=''
+	if ! grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+	    HP_PARAM='--use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization'
+	else
+	    ASUS_PARAM=''
+	fi
+        mkdir -p $HOME/.chromium_luis_a_profile_tikets && setsid google-chrome-stable $HP_PARAM --user-data-dir=$HOME/.chromium_luis_a_profile_tikets > /dev/null 2>&1 ;
 	;;
     71|Chromium_GuiosepTProfile)
-        mkdir -p $HOME/.chromium_guiosep_profile_tikets && setsid google-chrome-stable --user-data-dir=$HOME/.chromium_guiosep_profile_tikets > /dev/null 2>&1 ;
+	HP_PARAM=''
+	ASUS_PARAM=''
+	if ! grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+	    HP_PARAM='--use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization'
+	else
+	    ASUS_PARAM=''
+	fi
+        mkdir -p $HOME/.chromium_guiosep_profile_tikets && setsid google-chrome-stable $HP_PARAM --user-data-dir=$HOME/.chromium_guiosep_profile_tikets > /dev/null 2>&1 ;
 	;;
     72|Contar_Horas)
         if [ ! -f /tmp/Contar_Horas_counter_is_run_already.pid ]; then
@@ -781,10 +795,24 @@ EOF
         fi
         ;;
     73|GChrome_Profile_Ticket_ERC)
-	folder='chromium-new-profile-ticket-erc'; mkdir -p "$HOME/.$folder" && setsid google-chrome-stable --user-data-dir="$HOME/.$folder" > /dev/null 2>&1 ;
+	HP_PARAM=''
+	ASUS_PARAM=''
+	if ! grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+	    HP_PARAM='--use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization'
+	else
+	    ASUS_PARAM='--use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_jbl'
+	fi
+	folder='chromium-new-profile-ticket-erc'; mkdir -p "$HOME/.$folder" && setsid google-chrome-stable $HP_PARAM $ASUS_PARAM --user-data-dir="$HOME/.$folder" > /dev/null 2>&1 ;
 	;;
     74|GChrome_Profile_Tmp)
-	tmpfolder="/tmp/chromium-new-profile-tmp-$(date +%Y%M%d%M%S)"; mkdir -p "$tmpfolder"; setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop --user-data-dir="$tmpfolder" > /dev/null 2>&1 ;
+	HP_PARAM=''
+	ASUS_PARAM=''
+	if ! grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+	    HP_PARAM='--use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization'
+	else
+	    ASUS_PARAM='--use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop'
+	fi
+	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && tmpfolder="/tmp/chromium-new-profile-tmp-$(date +%Y%M%d%M%S)"; mkdir -p "$tmpfolder"; setsid google-chrome-stable $HP_PARAM $ASUS_PARAM --user-data-dir="$tmpfolder" > /dev/null 2>&1 ;
 	;;
     75|Emwm_$Laptop)
 	# 1. Asegurar que Xephyr sabe dónde abrirse localmente (tu pantalla principal)
@@ -870,7 +898,11 @@ EOF
 	;;
     83|Google_Chrome_No_Inhibit)
 	export DISPLAY=:0
-	systemd-inhibit --why="Necesito mantener la conexión en TTY" google-chrome
+	HP_PARAM=''
+	if ! grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+	    HP_PARAM='--use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization'
+	fi
+	systemd-inhibit --why="Necesito mantener la conexión en TTY" google-chrome $HP_PARAM
 	;;
     84|Firefox_Tmp)
 	export DISPLAY=:0
@@ -892,11 +924,25 @@ EOF
 	;;
     89|chrome)
 	export DISPLAY=:0
-	setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena
+	HP_PARAM=''
+	ASUS_PARAM=''
+	if ! grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+	    HP_PARAM='--use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization'
+	else
+	    ASUS_PARAM='--use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena'
+	fi
+	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable $HP_PARAM $ASUS_PARAM
 	;;
     90|chrome_jbl)
 	export DISPLAY=:0
-	setsid google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop
+	HP_PARAM=''
+	ASUS_PARAM=''
+	if ! grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+	    HP_PARAM='--use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization'
+	else
+	    ASUS_PARAM='--use-alsa --disable-audio-service-sandbox --alsa-input-device=microfono_laptop'
+	fi
+	ln -svf $HOME/monoliths-hm/asoundrc.conf ~/.asoundrc && setsid google-chrome-stable $HP_PARAM $ASUS_PARAM
 	;;
     91|Temporizador_Personalizado)
 	printf "Ingrese la cantidad de minutos: "
