@@ -312,7 +312,7 @@ EOF
             sleep 0.5
         done &
     fi
-    exec alt_tab_maximize_emacs-buffer_only-session > "$HOME/.alt_tab_maximize_emacs-buffer_only-session.log" 2>&1
+    exec alt_tab_maximize_emacs_asm-session > "$HOME/.alt_tab_maximize_emacs-buffer_only-session.log" 2>&1
 fi
 
 # doas /home/user/monoliths-llm/gaming-mode.sh
@@ -400,7 +400,9 @@ if doas dmesg | grep -q ZenBook > /dev/null; then
 fi
 
 if ! $NOGUI; then
-    if [ -f $HOME/alt_tab_maximize_emacs-buffer_only/alt_tab_maximize_emacs-buffer_only-session ]; then
+    if which alt_tab_maximize_emacs_asm-session >/dev/null 2>&1; then
+	exec alt_tab_maximize_emacs_asm-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
+    elif [ -f $HOME/alt_tab_maximize_emacs-buffer_only/alt_tab_maximize_emacs-buffer_only-session ]; then
 	exec alt_tab_maximize_emacs-buffer_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1
     else
 	exec alt_tab_maximize_only-session > "$HOME/.alt_tab_maximize_only-session.log" 2>&1

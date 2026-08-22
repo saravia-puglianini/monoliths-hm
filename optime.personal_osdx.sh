@@ -1,4 +1,12 @@
 #!/bin/dash
+for _osdbin in "$HOME/monoliths-hm/bin/personal_osdx" "$HOME/.local/bin/personal_osdx" "/usr/local/bin/personal_osdx"; do
+    if [ -x "$_osdbin" ]; then
+        "$_osdbin"
+        # Mantener ejecución de hour_big_ascii
+        bash "$HOME/monoliths-hm/hour_big_ascii.sh"
+        exit 0
+    fi
+done
 
 # 1. Obtener porcentaje y estado usando /sys/class/power_supply para mayor robustez
 PERC=$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo 0)

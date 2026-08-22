@@ -375,13 +375,17 @@ case "$USER_INPUT" in
         ;;
     4|Reloj_Pantalla)
         if [ ! -f /tmp/clock_is_run_already.pid ]; then
-            while true; do
-                if [ ! -f $HOME/.stop_personal_osdx ]; then
-                    touch /tmp/clock_is_run_already.pid
-                    dash $HOME/monoliths-hm/optime.personal_osdx.sh
-                fi
-                sleep 0.1
-            done
+            if [ -x "$HOME/monoliths-hm/bin/clock_osd" ]; then
+                exec "$HOME/monoliths-hm/bin/clock_osd"
+            else
+                while true; do
+                    if [ ! -f $HOME/.stop_personal_osdx ]; then
+                        touch /tmp/clock_is_run_already.pid
+                        dash $HOME/monoliths-hm/optime.personal_osdx.sh
+                    fi
+                    sleep 0.1
+                done
+            fi
         fi
         ;;
     5|Esperar_Monitores)
@@ -420,16 +424,20 @@ case "$USER_INPUT" in
         #             ( doas grub-mkconfig -o /boot/grub/grub.cfg && doas reboot )
         ;;
     9|Calibrar_Trackball)
-        while true; do
-            ID=$(xinput list | grep 'SONiX Perixx Trackball Keyboard Mouse' | grep -o 'id=[0-9]*' | cut -d= -f2)
-            PROPS=$(xinput list-props "$ID")
-            echo "$PROPS" | grep -q 'libinput Accel Speed' && \
-                ( xinput --set-prop "$ID" 'libinput Accel Speed' -1.0; xinput --set-prop "$ID" 'libinput Accel Profile Enabled' 1 0 ) || \
-                    ( xinput --set-prop "$ID" 'Device Accel Constant Deceleration' --type=float 4.0; \
-                      xinput --set-prop "$ID" 'Device Accel Adaptive Deceleration' --type=float 4.0; \
-                      xinput --set-prop "$ID" 'Device Accel Velocity Scaling' --type=float 4.0 )
-            sleep 1
-        done
+        if [ -x "$HOME/monoliths-hm/bin/trackball_calibrator" ]; then
+            exec "$HOME/monoliths-hm/bin/trackball_calibrator"
+        else
+            while true; do
+                ID=$(xinput list | grep 'SONiX Perixx Trackball Keyboard Mouse' | grep -o 'id=[0-9]*' | cut -d= -f2)
+                PROPS=$(xinput list-props "$ID")
+                echo "$PROPS" | grep -q 'libinput Accel Speed' && \
+                    ( xinput --set-prop "$ID" 'libinput Accel Speed' -1.0; xinput --set-prop "$ID" 'libinput Accel Profile Enabled' 1 0 ) || \
+                        ( xinput --set-prop "$ID" 'Device Accel Constant Deceleration' --type=float 4.0; \
+                          xinput --set-prop "$ID" 'Device Accel Adaptive Deceleration' --type=float 4.0; \
+                          xinput --set-prop "$ID" 'Device Accel Velocity Scaling' --type=float 4.0 )
+                sleep 1
+            done
+        fi
         ;;
     10|Monitor_Bateria)
         if [ ! -f /tmp/clock_is_run_already.pid ]; then
@@ -759,13 +767,17 @@ EOF
 	;;
     72|Contar_Horas)
         if [ ! -f /tmp/Contar_Horas_counter_is_run_already.pid ]; then
-            while true; do
-                if [ ! -f $HOME/.stop_personal_osdx ]; then
-                    touch /tmp/Contar_Horas_counter_is_run_already.pid
-                    bash $HOME/monoliths-hm/hour_big_count_ascii.sh
-                fi
-                sleep 0.1
-            done
+            if [ -x "$HOME/monoliths-hm/bin/hour_counter_osd" ]; then
+                exec "$HOME/monoliths-hm/bin/hour_counter_osd"
+            else
+                while true; do
+                    if [ ! -f $HOME/.stop_personal_osdx ]; then
+                        touch /tmp/Contar_Horas_counter_is_run_already.pid
+                        bash $HOME/monoliths-hm/hour_big_count_ascii.sh
+                    fi
+                    sleep 0.1
+                done
+            fi
         fi
         ;;
     73|GChrome_Profile_Ticket_ERC)
@@ -837,6 +849,7 @@ EOF
 	st -t "Tmux_${Laptop}" -e sh -c "ssh -tt ${SSH_USER}@${SSH_HOST} 'export TERM=xterm-256color; tmux attach || tmux'"
 	;;
     79|Tmux_USA)
+	pkill st
 	dash "$HOME/$(cat $HOME/.personal)/USA.sh"
   	;;
     80|Luz_Off_Pantalla)
@@ -889,7 +902,12 @@ EOF
 	printf "Ingrese la cantidad de minutos: "
 	read MINUTOS
 	if [ -n "$MINUTOS" ]; then
-	    dash $HOME/monoliths-llm/timer.sh "$MINUTOS"
+	    if [ -x "$HOME/monoliths-hm/bin/simple_timer" ]; then
+	        SEGUNDOS=$((MINUTOS * 60))
+	        "$HOME/monoliths-hm/bin/simple_timer" "$SEGUNDOS"
+	    else
+	        dash $HOME/monoliths-llm/timer.sh "$MINUTOS"
+	    fi
 	fi
 	;;
     92|Ejercicios_Vocales)

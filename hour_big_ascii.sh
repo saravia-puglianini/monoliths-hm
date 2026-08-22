@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Prefer ultra-fast assembly/C clock OSD binary if present
+for _clkbin in "$HOME/monoliths-hm/bin/clock_osd" "$HOME/.local/bin/clock_osd" "/usr/local/bin/clock_osd"; do
+    if [ -x "$_clkbin" ]; then
+        # Check if already running or if called once
+        if ! pgrep -f "clock_osd" >/dev/null; then
+            "$_clkbin" &
+        fi
+        exit 0
+    fi
+done
+
 doble_point=$(cat <<'EOF'
     
  /$$

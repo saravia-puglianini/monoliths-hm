@@ -1,4 +1,10 @@
 #!/bin/dash
+# Check if optimized assembly/C volume binary exists
+for _vbin in "$HOME/monoliths-hm/bin/volume_ctrl" "$HOME/.local/bin/volume_ctrl" "/usr/local/bin/volume_ctrl"; do
+    if [ -x "$_vbin" ]; then
+        exec "$_vbin" down
+    fi
+done
 [ -h $HOME/.#.amixer_scontents ] && rm -f $HOME/.#.amixer_scontent*
 [ -h $HOME/.#.amixer_scontrols ] && rm -f $HOME/.#.amixer_scontrol*
 [ -f $HOME/.amixer_scontrols ] && rm -f $HOME/.amixer_scontrols

@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Prefer ultra-fast assembly/C hour counter OSD binary if present
+for _cntbin in "$HOME/monoliths-hm/bin/hour_counter_osd" "$HOME/.local/bin/hour_counter_osd" "/usr/local/bin/hour_counter_osd"; do
+    if [ -x "$_cntbin" ]; then
+        if ! pgrep -f "hour_counter_osd" >/dev/null; then
+            "$_cntbin" &
+        fi
+        exit 0
+    fi
+done
+
 doble_point=$(cat <<'EOF'
     
  /$$
