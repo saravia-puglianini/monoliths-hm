@@ -30,50 +30,55 @@ if [ -f "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" ]; then
 fi
 
 (
-    MAC="13:08:AC:00:21:8A"
+    # Verificar si el mouse USB Logitech está conectado mediante el binario optimizador
+    if [ -x "$HOME/monoliths-hm/bin/check_usb_mouse_bt_optimizer" ]; then
+        "$HOME/monoliths-hm/bin/check_usb_mouse_bt_optimizer"
+        USB_STATUS=$?
+    else
+        USB_STATUS=1
+    fi
 
-    echo "--- Reiniciando módulos del kernel Bluetooth ---"
-    doas modprobe -r btusb 2>/dev/null
-    doas modprobe -r bluetooth 2>/dev/null
-    sleep 1
-    doas modprobe bluetooth 2>/dev/null
-    doas modprobe btusb 2>/dev/null
-    sleep 1
+    # Si NO está conectado el mouse USB (código != 0), activar y conectar Bluetooth
+    if [ "$USB_STATUS" -ne 0 ]; then
+        MAC="13:08:AC:00:21:8A"
 
-    echo "--- Desbloqueando e iniciando servicio Bluetooth ---"
-    doas rfkill unblock bluetooth 2>/dev/null
-    doas rfkill unblock all 2>/dev/null
-    doas /etc/init.d/bluetooth restart 2>/dev/null
+        echo "--- Cargando módulos Bluetooth ---"
+        doas modprobe bluetooth 2>/dev/null
+        doas modprobe btusb 2>/dev/null
 
-    sleep 2
-    doas hciconfig hci0 up 2>/dev/null
-    doas hciconfig hci0 piscan 2>/dev/null
+        echo "--- Desbloqueando e iniciando servicio Bluetooth ---"
+        doas rfkill unblock bluetooth 2>/dev/null
+        doas /etc/init.d/bluetooth start 2>/dev/null
 
-    sleep 2
+        sleep 1
+        doas hciconfig hci0 up 2>/dev/null
+        doas hciconfig hci0 piscan 2>/dev/null
 
-    echo "--- Conectando al mouse TERAWARE5.0 ($MAC) ---"
+        sleep 1
+        echo "--- Conectando al mouse TERAWARE5.0 ($MAC) ---"
 
-    {
-	echo "power on"
-	sleep 2
-	echo "agent on"
-	echo "default-agent"
-	sleep 1
-	echo "scan on"
-	sleep 3
-	echo "pair $MAC"
-	sleep 3
-	echo "trust $MAC"
-	sleep 2
-	echo "connect $MAC"
-	sleep 5
-	echo "scan off"
-	echo "quit"
-    } | bluetoothctl
+        {
+            echo "power on"
+            sleep 2
+            echo "agent on"
+            echo "default-agent"
+            sleep 1
+            echo "scan on"
+            sleep 2
+            echo "pair $MAC"
+            sleep 2
+            echo "trust $MAC"
+            sleep 1
+            echo "connect $MAC"
+            sleep 4
+            echo "scan off"
+            echo "quit"
+        } | bluetoothctl
 
-    echo ""
-    echo "--- Estado final del dispositivo ---"
-    echo "info $MAC" | bluetoothctl | grep -i -E "Name|Connected|Paired|Trusted"
+        echo ""
+        echo "--- Estado final del dispositivo ---"
+        echo "info $MAC" | bluetoothctl | grep -i -E "Name|Connected|Paired|Trusted"
+    fi
 ) &
 
 # Lanzar información de /dev/input/ mediante dev.sh al inicio

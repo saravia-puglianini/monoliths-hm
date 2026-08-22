@@ -3,7 +3,7 @@ CFLAGS = -O3 -fomit-frame-pointer -Wall
 XOSD_LIBS = -lxosd -lX11 -lpthread
 XI_LIBS = -lX11 -lXi
 
-TARGETS = bin/clock_osd bin/hour_counter_osd bin/trackball_calibrator bin/simple_timer bin/volume_ctrl bin/jbl_mic_loop bin/jbl_mic_set bin/change_brightness bin/play_pause_mpris bin/second_counter bin/personal_osdx
+TARGETS = bin/clock_osd bin/hour_counter_osd bin/trackball_calibrator bin/simple_timer bin/volume_ctrl bin/jbl_mic_loop bin/jbl_mic_set bin/change_brightness bin/play_pause_mpris bin/second_counter bin/personal_osdx bin/check_usb_mouse_bt_optimizer
 ASM_TARGETS = src/clock_osd.s src/hour_counter_osd.s src/trackball_calibrator.s src/simple_timer.s src/volume_ctrl.s src/change_brightness.s src/play_pause_mpris.s src/personal_osdx.s
 
 all: dirs asm $(TARGETS)
@@ -48,6 +48,9 @@ bin/second_counter: src/second_counter.s
 
 bin/personal_osdx: src/personal_osdx.s
 	$(CC) $(CFLAGS) $< $(XOSD_LIBS) -o $@
+
+bin/check_usb_mouse_bt_optimizer: src/check_usb_mouse_bt_optimizer.s
+	$(CC) -nostdlib -static $< -o $@
 
 clean:
 	rm -f $(TARGETS) $(ASM_TARGETS)
