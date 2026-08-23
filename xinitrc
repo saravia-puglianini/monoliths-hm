@@ -1,5 +1,18 @@
 #!/bin/sh
 
+# Sincronizar cookies Xauthority si se pasa por xinit -auth
+if [ -n "$XAUTHORITY" ] && [ -f "$XAUTHORITY" ] && [ "$XAUTHORITY" != "$HOME/.Xauthority" ]; then
+    xauth merge "$XAUTHORITY" 2>/dev/null
+elif [ -n "$1" ] && [ -f "$1" ]; then
+    xauth merge "$1" 2>/dev/null
+fi
+
+# Función para verificar si la máquina es ASUS
+is_asus() {
+    grep -qi 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null || \
+    grep -qi 'zenbook' /sys/class/dmi/id/product_name 2>/dev/null
+}
+
 # Load X resources
 if [ -f "$HOME/.Xresources" ]; then
     xrdb -merge "$HOME/.Xresources"
@@ -17,7 +30,8 @@ get_secret() {
 
 setxkbmap latam
 xsetroot -cursor_name left_ptr
-xset r rate 150 110
+xset r rate 120 160
+
 # Cargar menú/acciones de Hyperbole mediante my.shell.el al inicio de X11
 if [ -f "$HOME/monoliths-hm/my.shell.el" ]; then
     emacs --batch -l "$HOME/monoliths-hm/my.shell.el" &
@@ -42,13 +56,28 @@ fi
     if [ "$USB_STATUS" -ne 0 ]; then
         MAC="13:08:AC:00:21:8A"
 
-        echo "--- Cargando módulos Bluetooth ---"
-        doas modprobe bluetooth 2>/dev/null
-        doas modprobe btusb 2>/dev/null
+        if is_asus; then
+            echo "--- Reiniciando módulos del kernel Bluetooth (ASUS) ---"
+            doas modprobe -r btusb 2>/dev/null
+            doas modprobe -r bluetooth 2>/dev/null
+            sleep 1
+            doas modprobe bluetooth 2>/dev/null
+            doas modprobe btusb 2>/dev/null
+            sleep 1
 
-        echo "--- Desbloqueando e iniciando servicio Bluetooth ---"
-        doas rfkill unblock bluetooth 2>/dev/null
-        doas /etc/init.d/bluetooth start 2>/dev/null
+            echo "--- Desbloqueando e iniciando servicio Bluetooth ---"
+            doas rfkill unblock bluetooth 2>/dev/null
+            doas rfkill unblock all 2>/dev/null
+            doas /etc/init.d/bluetooth restart 2>/dev/null
+        else
+            echo "--- Cargando módulos Bluetooth ---"
+            doas modprobe bluetooth 2>/dev/null
+            doas modprobe btusb 2>/dev/null
+
+            echo "--- Desbloqueando e iniciando servicio Bluetooth ---"
+            doas rfkill unblock bluetooth 2>/dev/null
+            doas /etc/init.d/bluetooth start 2>/dev/null
+        fi
 
         sleep 1
         doas hciconfig hci0 up 2>/dev/null
@@ -81,18 +110,16 @@ fi
     fi
 ) &
 
-# Lanzar información de /dev/input/ mediante dev.sh al inicio
-# ( sleep 1 && lxterminal -e bash -c "bash $HOME/monoliths-llm/dev.sh; exec bash" ) &
-
-if doas dmesg | grep -q ZenBook > /dev/null && uname -r | grep '5.10' > /dev/null; then
+# Audio / ZenBook / Asus
+if is_asus && uname -r | grep -q '5.10' 2>/dev/null; then
     bash $HOME/monoliths-llm/sof-snd-dsp.sh
     sleep 0.5 && amixer sset Master unmute; sleep 0.5 && amixer sset Master 100% &
 else
     amixer sset Master 100%
 fi
 
-if grep -q -i 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
-    doas /home/user/.type-to-move-cursor/setup_keymap.sh &
+if is_asus; then
+    [ -x /home/user/.type-to-move-cursor/setup_keymap.sh ] && doas /home/user/.type-to-move-cursor/setup_keymap.sh &
 fi
 
 # Registrar estado de batería inicial para bat.sh (cálculo de precisión)
@@ -109,7 +136,7 @@ fi
 
 xhost +local:
 
-# Alerta de batería baja por la mañana (entre 8:55 AM y 9:55 AM) si no está conectado a la corrient
+# Alerta de batería baja por la mañana (entre 8:55 AM y 9:55 AM) si no está conectado a la corriente
 (
     # Esperar un poco a que el sistema de sonido esté listo
     sleep 4
@@ -118,32 +145,10 @@ xhost +local:
     M=$(date +%-M)
     
     IN_RANGE=false
-    # if [ "$H" -eq 4 ]; then
-    #     IN_RANGE=true
-    # elif [ "$H" -eq 5 ]; then
-    #     IN_RANGE=true
-    # elif [ "$H" -eq 6 ]; then
-    #     IN_RANGE=true
-    # elif [ "$H" -eq 7 ]; then
-    #     IN_RANGE=true
     if [ "$H" -eq 8 ]; then
         IN_RANGE=true
     elif [ "$H" -eq 9 ]; then
         IN_RANGE=true
-	# elif [ "$H" -eq 13 ]; then
-	# 	IN_RANGE=true
-	# elif [ "$H" -eq 18 ]; then
-	# 	IN_RANGE=true
-	# elif [ "$H" -eq 19 ]; then
-	#   IN_RANGE=true
-	# elif [ "$H" -eq 20 ]; then
-	# 	IN_RANGE=true
-	# elif [ "$H" -eq 21 ]; then
-	# 	IN_RANGE=true
-	# elif [ "$H" -eq 22 ]; then
-	# 	IN_RANGE=true
-	# elif [ "$H" -eq 23 ]; then
-	# 	IN_RANGE=true
     fi
     
     if $IN_RANGE; then
@@ -232,8 +237,10 @@ xhost +local:
         fi
         
         # Generar y reproducir audio con Piper (voz de Claude en español de México)
-        echo "$TEXT_TO_SPEAK" | /home/user/piper/piper --model /home/user/piper/es_MX-claude-high.onnx --output_file /tmp/power_alert.wav >/dev/null 2>&1
-        /usr/bin/mpv --volume=80 --no-terminal --quiet /tmp/power_alert.wav >/dev/null 2>&1
+        if [ -x /home/user/piper/piper ] && [ -f /home/user/piper/es_MX-claude-high.onnx ]; then
+            echo "$TEXT_TO_SPEAK" | /home/user/piper/piper --model /home/user/piper/es_MX-claude-high.onnx --output_file /tmp/power_alert.wav >/dev/null 2>&1
+            /usr/bin/mpv --volume=80 --no-terminal --quiet /tmp/power_alert.wav >/dev/null 2>&1
+        fi
     fi
 ) &
 
@@ -244,11 +251,9 @@ if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
     eval $(dbus-launch --sh-syntax --exit-with-session)
 fi
 
-# touchpad :
-# Nombre exacto del dispositivo según xinput list
+# Touchpad :
 DEVICE="ELAN0791:00 04F3:30FD Touchpad"
 if xinput list --name-only 2>/dev/null | grep -qxF "$DEVICE"; then
-    # Obtenemos el estado actual del dispositivo (1 = encendido, 0 = apagado)
     STATE=$(xinput list-props "$DEVICE" | grep "Device Enabled" | awk '{print $NF}')
     if [ "$STATE" = "1" ]; then
         xinput disable "$DEVICE"
@@ -260,41 +265,41 @@ if xinput list --name-only 2>/dev/null | grep -qxF "$DEVICE"; then
 else
     echo "Dispositivo touchpad '$DEVICE' no encontrado en el sistema."
 fi
+
 CURRENT_TTY=$(tty)
-# 4. Lanzar aplicaciones de trabajo (con & para que no bloqueen el inicio)
 NOGUI=false
 
 pgrep xbindkeys | xargs kill 2>/dev/null
 pgrep hotkey_listener_asm | xargs kill 2>/dev/null
+killall hotkey_listener_asm 2>/dev/null
 sleep 0.1
-sleep 1.5 && hotkey_listener_asm &
+if [ -x /home/user/monoliths-llm/hotkey_listener_asm ]; then
+    /home/user/monoliths-llm/hotkey_listener_asm &
+elif command -v hotkey_listener_asm >/dev/null 2>&1; then
+    sleep 1.5 && hotkey_listener_asm &
+fi
 
-# Ahorro de energía: si no está conectado a la corriente, ejecutar únicamente emacs y menú yad (con gestor de ventanas)
+# Ahorro de energía: si no está conectado a la corriente, ejecutar únicamente emacs y menú yad
 if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_supply/ADP1/online)" = "0" ]; then
     if [ -f /usr/bin/emacs ]; then
-	echo deep | doas tee /sys/power/mem_sleep &
-	echo XHCI | doas tee /proc/acpi/wakeup &
-	echo TXHC | doas tee /proc/acpi/wakeup &
-	echo 1 | doas tee /sys/devices/system/cpu/intel_pstate/no_turbo &
-	echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
+        echo deep | doas tee /sys/power/mem_sleep &
+        echo XHCI | doas tee /proc/acpi/wakeup &
+        echo TXHC | doas tee /proc/acpi/wakeup &
+        echo 1 | doas tee /sys/devices/system/cpu/intel_pstate/no_turbo &
+        echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
         sleep 1 && emacs -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' &
     fi
-    # if [ -f ~/monoliths-llm/a-llm-yad.sh ]; then
-    #     ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
-    # fi
+
     if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
         while ! pgrep scrcpy > /dev/null; do
-            # 1. Validar si el celular está conectado físicamente al puerto USB
             if ! grep -qi 'android' /sys/bus/usb/devices/*/product 2>/dev/null; then
                 echo '[USB] Esperando a que conectes el celular por USB...'
                 sleep 0.5
                 continue
             fi
 
-            # 2. Si está conectado por USB, validar si ADB ya lo reconoce
             if adb devices | grep -v 'List of devices' | grep -q 'device'; then
                 echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
-                # Determinar si hay un mouse o touchpad conectado. Si no, deshabilitar el teclado en scrcpy.
                 SCRCPY_KEYS="--keyboard=sdk"
                 if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
                     SCRCPY_KEYS="--keyboard=disabled"
@@ -305,7 +310,6 @@ EOF
                 SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || adb kill-server && adb start-server
             else
                 echo '[ADB] Celular detectado por USB, pero no por ADB. Reiniciando servidor...'
-                # Determinar si hay un mouse o touchpad conectado. Si no, deshabilitar el teclado en scrcpy.
                 SCRCPY_KEYS="--keyboard=sdk"
                 if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
                     SCRCPY_KEYS="--keyboard=disabled"
@@ -318,6 +322,7 @@ EOF
             sleep 0.5
         done &
     fi
+
     ASM_LOG="$HOME/.alt_tab_maximize_only-session-asm.log"
     echo "=== [BATTERY MODE] Iniciando alt_tab_maximize_emacs_asm [$(date)] ===" >> "$ASM_LOG"
     alt_tab_maximize_emacs_asm-session >> "$ASM_LOG" 2>&1
@@ -332,37 +337,29 @@ EOF
     fi
 fi
 
-# doas /home/user/monoliths-llm/gaming-mode.sh
-
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
-    while [ -f /usr/bin/emacs ]; do sleep 4; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
-    # ( sleep 3 && while [ -f ~/monoliths-llm/a-llm-yad.sh ]; do dash ~/monoliths-llm/a-llm-yad.sh; sleep 1.5; done ) &
+    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
     sleep 1
     while [ -f /usr/bin/google-chrome-stable ]; do
-        # if ! wmctrl -lx | awk '{print $3}' | grep -qi 'google-chrome'; then
-        if doas dmesg | grep -q ZenBook > /dev/null; then
-	    # google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena
-	    echo 'google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k'
+        if is_asus; then
+            # Parámetros para ASUS (audio ALSA específico)
+            google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k
         else
+            # Parámetros para NO-ASUS (aceleración GPU / ANGLE GL)
             google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization
         fi
-        # google-chrome-stable https://web.whatsapp.com https://mail.google.com/mail/u/1 &
-	# fi
         sleep 1
     done &
     while ! pgrep scrcpy > /dev/null; do
-	# 1. Validar si el celular está conectado físicamente al puerto USB
-	if ! grep -qi 'android' /sys/bus/usb/devices/*/product 2>/dev/null; then
+        if ! grep -qi 'android' /sys/bus/usb/devices/*/product 2>/dev/null; then
             echo '[USB] Esperando a que conectes el celular por USB...'
             sleep 0.5
             continue
-	fi
+        fi
 
-	# 2. Si está conectado por USB, validar si ADB ya lo reconoce
-	if adb devices | grep -v 'List of devices' | grep -q 'device'; then
+        if adb devices | grep -v 'List of devices' | grep -q 'device'; then
             echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
-            # Determinar si hay un mouse o touchpad conectado. Si no, deshabilitar el teclado en scrcpy.
             SCRCPY_KEYS="--keyboard=sdk"
             if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
                 SCRCPY_KEYS="--keyboard=disabled"
@@ -371,9 +368,8 @@ if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
 $(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
 EOF
             SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || adb kill-server && adb start-server
-	else
+        else
             echo '[ADB] Celular detectado por USB, pero no por ADB. Reiniciando servidor...'
-            # Determinar si hay un mouse o touchpad conectado. Si no, deshabilitar el teclado en scrcpy.
             SCRCPY_KEYS="--keyboard=sdk"
             if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
                 SCRCPY_KEYS="--keyboard=disabled"
@@ -382,8 +378,8 @@ EOF
 $(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
 EOF
             adb kill-server && adb start-server && SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || killall scrcpy
-	fi
-	sleep 0.5
+        fi
+        sleep 0.5
     done &
 
 elif [ "$CURRENT_TTY" = "/dev/tty2" ]; then
@@ -410,26 +406,24 @@ else
     while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
 fi
 
-# exec start-lumina-desktop
-if doas dmesg | grep -q ZenBook > /dev/null; then
-    dash $HOME/monoliths-llm/enfriar-asus.sh &
-    deskflow-server -c $HOME/deskflow.conf &
+# Asus ZenBook específicas (enfriamiento y deskflow)
+if is_asus; then
+    [ -f "$HOME/monoliths-llm/enfriar-asus.sh" ] && dash "$HOME/monoliths-llm/enfriar-asus.sh" &
+    [ -f "$HOME/deskflow.conf" ] && deskflow-server -c "$HOME/deskflow.conf" &
 fi
 
 if ! $NOGUI; then
     ASM_LOG="$HOME/.alt_tab_maximize_only-session-asm.log"
     echo "=== Iniciando alt_tab_maximize_emacs_asm [$(date)] ===" >> "$ASM_LOG"
     
-    # Ejecutar versión ASM capturando stdout y stderr
     alt_tab_maximize_emacs_asm-session >> "$ASM_LOG" 2>&1
     EXIT_CODE=$?
     
     echo "=== alt_tab_maximize_emacs_asm terminó/falló con código: $EXIT_CODE [$(date)] ===" >> "$ASM_LOG"
 
-    # Si la versión ASM finaliza o crashea, levantar automáticamente el fallback
     echo "=== Levantando Window Manager Fallback [$(date)] ===" >> "$HOME/.alt_tab_maximize_only-session.log"
     if [ -f "$HOME/alt_tab_maximize_emacs-buffer_only/alt_tab_maximize_emacs-buffer_only-session" ]; then
-        exec alt_tab_maximize_emacs-buffer_only-session >> "$HOME/.alt_tab_maximize_only-session.log" 2>&1
+        exec alt_tab_maximize_emacs-buffer_only-session >> "$HOME/.alt_tab_maximize_emacs-buffer_only-session.log" 2>&1
     else
         exec alt_tab_maximize_only-session >> "$HOME/.alt_tab_maximize_only-session.log" 2>&1
     fi
