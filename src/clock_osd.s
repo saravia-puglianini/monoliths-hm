@@ -1,28 +1,27 @@
 	.file	"clock_osd.c"
 	.intel_syntax noprefix
 	.text
-	.p2align 4
+	.p2align 4,,15
 	.type	x11_silent_error_handler, @function
 x11_silent_error_handler:
-.LFB80:
+.LFB33:
 	.cfi_startproc
-	endbr64
 	xor	eax, eax
 	ret
 	.cfi_endproc
-.LFE80:
+.LFE33:
 	.size	x11_silent_error_handler, .-x11_silent_error_handler
 	.section	.rodata.str1.1,"aMS",@progbits,1
 .LC0:
 	.string	"/home/user"
 .LC1:
-	.string	"AC"
-.LC2:
-	.string	"[===]"
-.LC3:
 	.string	"[==-]"
-.LC4:
+.LC2:
 	.string	"[=--]"
+.LC3:
+	.string	"AC"
+.LC4:
+	.string	"[===]"
 .LC5:
 	.string	"[---]"
 .LC6:
@@ -30,17 +29,17 @@ x11_silent_error_handler:
 .LC7:
 	.string	"a.m."
 .LC8:
-	.string	"Xephyr quit Ctrl+Shift"
-.LC9:
-	.string	"red"
-.LC10:
-	.string	"Keyboard quit Alt+2"
-.LC11:
-	.string	"green"
-.LC12:
 	.string	"Mouse quit Alt+1"
-.LC13:
+.LC9:
 	.string	"orange"
+.LC10:
+	.string	"Xephyr quit Ctrl+Shift"
+.LC11:
+	.string	"red"
+.LC12:
+	.string	"Keyboard quit Alt+2"
+.LC13:
+	.string	"green"
 .LC14:
 	.string	"HOME"
 .LC15:
@@ -92,16 +91,16 @@ x11_silent_error_handler:
 .LC34:
 	.string	"_NET_WM_DESKTOP"
 	.section	.text.startup,"ax",@progbits
-	.p2align 4
+	.p2align 4,,15
 	.globl	main
 	.type	main, @function
 main:
-.LFB86:
+.LFB39:
 	.cfi_startproc
-	endbr64
 	push	r15
 	.cfi_def_cfa_offset 16
 	.cfi_offset 15, -16
+	mov	edi, OFFSET FLAT:.LC14
 	push	r14
 	.cfi_def_cfa_offset 24
 	.cfi_offset 14, -24
@@ -117,857 +116,764 @@ main:
 	push	rbx
 	.cfi_def_cfa_offset 56
 	.cfi_offset 3, -56
-	sub	rsp, 4096
-	.cfi_def_cfa_offset 4152
-	or	QWORD PTR [rsp], 0
-	sub	rsp, 3416
-	.cfi_def_cfa_offset 7568
-	lea	rbx, .LC0[rip]
-	mov	rdi, QWORD PTR fs:40
-	mov	QWORD PTR 7496[rsp], rdi
-	lea	rdi, .LC14[rip]
-	call	getenv@PLT
-	mov	ecx, 256
-	mov	edx, 1
-	lea	r8, .LC15[rip]
+	sub	rsp, 5272
+	.cfi_def_cfa_offset 5328
+	call	getenv
+	mov	edx, OFFSET FLAT:.LC15
+	mov	esi, 256
+	lea	rdi, [rsp+400]
 	test	rax, rax
-	mov	esi, 256
-	cmovne	rbx, rax
-	lea	rax, 2624[rsp]
-	mov	rdi, rax
-	mov	QWORD PTR 32[rsp], rax
+	mov	rbx, rax
+	mov	eax, OFFSET FLAT:.LC0
+	cmove	rbx, rax
 	xor	eax, eax
-	mov	r9, rbx
-	call	__snprintf_chk@PLT
-	lea	rax, 2880[rsp]
-	mov	r9, rbx
-	lea	r8, .LC16[rip]
-	mov	rdi, rax
-	mov	ecx, 256
-	mov	edx, 1
-	mov	QWORD PTR 128[rsp], rax
-	mov	esi, 256
-	xor	eax, eax
-	call	__snprintf_chk@PLT
-	lea	rax, 3136[rsp]
-	mov	edx, 1
-	mov	r9, rbx
-	mov	rdi, rax
-	mov	QWORD PTR 120[rsp], rax
+	mov	rcx, rbx
+	call	snprintf
+	mov	rcx, rbx
+	mov	edx, OFFSET FLAT:.LC16
 	xor	eax, eax
 	mov	esi, 256
-	lea	r8, .LC17[rip]
-	mov	ecx, 256
-	call	__snprintf_chk@PLT
+	lea	rdi, [rsp+656]
+	call	snprintf
+	mov	edx, OFFSET FLAT:.LC17
+	xor	eax, eax
+	mov	rcx, rbx
+	mov	esi, 256
+	lea	rdi, [rsp+912]
+	call	snprintf
 	xor	eax, eax
 	mov	edx, 420
 	mov	esi, 577
-	lea	rdi, .LC18[rip]
-	call	open@PLT
+	mov	edi, OFFSET FLAT:.LC18
+	call	open
 	test	eax, eax
 	js	.L5
 	mov	edi, eax
-	call	close@PLT
+	call	close
 .L5:
 	xor	edi, edi
-	call	XOpenDisplay@PLT
+	call	XOpenDisplay
 	mov	rbx, rax
 	test	rax, rax
-	je	.L146
-	lea	rdi, x11_silent_error_handler[rip]
-	call	XSetErrorHandler@PLT
-	movsxd	rax, DWORD PTR 224[rbx]
+	je	.L135
+	mov	edi, OFFSET FLAT:x11_silent_error_handler
+	call	XSetErrorHandler
+	movsx	rax, DWORD PTR [rbx+224]
 	mov	edi, 4
 	sal	rax, 7
-	add	rax, QWORD PTR 232[rbx]
-	mov	rax, QWORD PTR 16[rax]
-	mov	QWORD PTR 8[rsp], rax
-	call	xosd_create@PLT
-	mov	QWORD PTR 64[rsp], rax
+	add	rax, QWORD PTR [rbx+232]
+	mov	rax, QWORD PTR [rax+16]
+	mov	QWORD PTR [rsp+8], rax
+	call	xosd_create
+	mov	QWORD PTR [rsp+40], rax
 	test	rax, rax
-	je	.L147
-	mov	r15, rax
+	je	.L136
+	mov	r14, rax
 	xor	esi, esi
 	mov	rdi, rax
-	call	xosd_set_pos@PLT
-	mov	rdi, r15
+	call	xosd_set_pos
+	mov	rdi, r14
 	mov	esi, 2
-	call	xosd_set_align@PLT
-	mov	rdi, r15
+	call	xosd_set_align
+	mov	rdi, r14
 	mov	esi, 50
-	call	xosd_set_horizontal_offset@PLT
-	mov	rdi, r15
+	call	xosd_set_horizontal_offset
+	mov	rdi, r14
 	mov	esi, 1
-	call	xosd_set_shadow_offset@PLT
-	mov	rdi, r15
+	call	xosd_set_shadow_offset
+	mov	rdi, r14
 	mov	esi, -1
-	call	xosd_set_timeout@PLT
+	call	xosd_set_timeout
 	mov	edi, 8
-	call	xosd_create@PLT
-	mov	QWORD PTR 112[rsp], rax
-	mov	r15, rax
+	call	xosd_create
+	mov	r14, rax
+	mov	QWORD PTR [rsp+24], rax
 	test	rax, rax
 	je	.L9
 	mov	esi, 1
 	mov	rdi, rax
-	call	xosd_set_pos@PLT
+	call	xosd_set_pos
 	mov	esi, 2
-	mov	rdi, r15
-	call	xosd_set_align@PLT
+	mov	rdi, r14
+	call	xosd_set_align
 	mov	esi, 1
-	mov	rdi, r15
-	call	xosd_set_shadow_offset@PLT
-	mov	esi, -1
-	mov	rdi, r15
-	call	xosd_set_timeout@PLT
+	mov	rdi, r14
+	call	xosd_set_shadow_offset
+	or	esi, -1
+	mov	rdi, r14
+	call	xosd_set_timeout
 .L9:
 	mov	edx, 1
-	lea	rsi, .LC21[rip]
-	lea	rdi, .LC22[rip]
-	call	setenv@PLT
-	lea	r12, 2464[rsp]
-	call	tzset@PLT
-	xor	edi, edi
-	call	time@PLT
-	pxor	xmm0, xmm0
-	mov	DWORD PTR 20[rsp], 0
-	cmp	QWORD PTR 112[rsp], 0
-	mov	QWORD PTR 104[rsp], rax
-	lea	rax, 416[rsp]
-	mov	QWORD PTR [rsp], rax
-	lea	rax, 268[rsp]
-	mov	QWORD PTR 144[rsp], rax
-	lea	rax, 264[rsp]
-	mov	QWORD PTR 136[rsp], rax
-	lea	rax, 296[rsp]
-	mov	QWORD PTR 184[rsp], rax
-	lea	rax, 288[rsp]
-	mov	QWORD PTR 176[rsp], rax
-	lea	rax, 280[rsp]
-	mov	QWORD PTR 168[rsp], rax
-	lea	rax, 276[rsp]
-	mov	QWORD PTR 160[rsp], rax
-	lea	rax, 272[rsp]
-	mov	QWORD PTR 152[rsp], rax
-	lea	rax, 3392[rsp]
-	mov	QWORD PTR 24[rsp], rax
-	lea	rax, 352[rsp]
-	mov	QWORD PTR 200[rsp], rax
-	lea	rax, 304[rsp]
-	mov	QWORD PTR 192[rsp], rax
-	lea	rax, 2496[rsp]
-	mov	QWORD PTR 40[rsp], rax
-	lea	rax, 336[rsp]
-	mov	QWORD PTR 216[rsp], rax
-	lea	rax, 328[rsp]
-	mov	QWORD PTR 96[rsp], rax
-	lea	rax, 320[rsp]
-	mov	QWORD PTR 88[rsp], rax
-	lea	rax, 284[rsp]
-	mov	QWORD PTR 72[rsp], rax
-	lea	rax, 312[rsp]
-	mov	QWORD PTR 80[rsp], rax
-	lea	rax, 344[rsp]
-	mov	QWORD PTR 208[rsp], rax
-	lea	rax, 420[rsp]
-	mov	QWORD PTR 232[rsp], rax
-	lea	rax, 428[rsp]
-	mov	DWORD PTR 248[rsp], -1
-	mov	DWORD PTR 228[rsp], -1
-	mov	QWORD PTR 240[rsp], rax
-	setne	BYTE PTR 227[rsp]
+	mov	esi, OFFSET FLAT:.LC21
+	mov	edi, OFFSET FLAT:.LC22
 	xor	ebp, ebp
-	movaps	XMMWORD PTR 2464[rsp], xmm0
-	movaps	XMMWORD PTR 2480[rsp], xmm0
-	.p2align 4
+	call	setenv
+	lea	r12, [rsp+152]
+	call	tzset
+	xor	edi, edi
+	call	time
+	mov	DWORD PTR [rsp+16], 0
+	pxor	xmm0, xmm0
+	mov	QWORD PTR [rsp+56], rax
+	mov	eax, -1
+	mov	DWORD PTR [rsp+68], eax
+	mov	DWORD PTR [rsp+64], eax
+	lea	rax, [rsp+1172]
+	mov	QWORD PTR [rsp+72], rax
+	movaps	XMMWORD PTR [rsp+176], xmm0
+	movaps	XMMWORD PTR [rsp+192], xmm0
+	.p2align 4,,10
 	.p2align 3
 .L10:
 	mov	rdi, rbx
-	call	XPending@PLT
+	call	XPending
 	test	eax, eax
-	je	.L148
+	je	.L137
 .L11:
-	mov	rsi, QWORD PTR [rsp]
 	mov	rdi, rbx
-	call	XNextEvent@PLT
+	lea	rsi, [rsp+1168]
+	call	XNextEvent
 	mov	rdi, rbx
-	call	XPending@PLT
+	call	XPending
 	test	eax, eax
 	jne	.L11
-.L148:
-	mov	rdi, QWORD PTR 32[rsp]
+.L137:
 	xor	esi, esi
-	call	access@PLT
+	lea	rdi, [rsp+400]
+	call	access
 	test	eax, eax
 	jne	.L12
 	test	ebp, ebp
-	jne	.L149
+	jne	.L138
 .L13:
-	mov	ebp, DWORD PTR 20[rsp]
-	test	ebp, ebp
+	mov	r10d, DWORD PTR [rsp+16]
+	test	r10d, r10d
 	je	.L14
-	cmp	BYTE PTR 227[rsp], 0
+	mov	rax, QWORD PTR [rsp+24]
+	test	rax, rax
 	je	.L14
-	mov	rdi, QWORD PTR 112[rsp]
-	call	xosd_hide@PLT
-	mov	DWORD PTR 20[rsp], 0
+	mov	rdi, rax
+	call	xosd_hide
+	mov	DWORD PTR [rsp+16], 0
 .L14:
 	mov	edi, 200000
 	xor	ebp, ebp
-	call	usleep@PLT
+	call	usleep
 	jmp	.L10
 	.p2align 4,,10
 	.p2align 3
 .L12:
 	sub	rsp, 8
-	.cfi_def_cfa_offset 7576
+	.cfi_def_cfa_offset 5336
 	mov	rdi, rbx
-	push	QWORD PTR 176[rsp]
-	.cfi_def_cfa_offset 7584
-	push	QWORD PTR 176[rsp]
-	.cfi_def_cfa_offset 7592
-	push	QWORD PTR 176[rsp]
-	.cfi_def_cfa_offset 7600
-	mov	r9, QWORD PTR 176[rsp]
-	mov	r8, QWORD PTR 168[rsp]
-	mov	rcx, QWORD PTR 216[rsp]
-	mov	rdx, QWORD PTR 208[rsp]
-	mov	rsi, QWORD PTR 40[rsp]
-	call	XQueryPointer@PLT
+	lea	rax, [rsp+104]
+	push	rax
+	.cfi_def_cfa_offset 5344
+	lea	rax, [rsp+108]
+	push	rax
+	.cfi_def_cfa_offset 5352
+	lea	rax, [rsp+112]
+	push	rax
+	.cfi_def_cfa_offset 5360
+	mov	rsi, QWORD PTR [rsp+40]
+	lea	r9, [rsp+116]
+	lea	r8, [rsp+112]
+	lea	rcx, [rsp+144]
+	lea	rdx, [rsp+136]
+	call	XQueryPointer
 	add	rsp, 32
-	.cfi_def_cfa_offset 7568
+	.cfi_def_cfa_offset 5328
 	test	eax, eax
 	je	.L16
-	mov	ebp, DWORD PTR 264[rsp]
-	mov	r13d, DWORD PTR 268[rsp]
-	cmp	ebp, DWORD PTR 228[rsp]
+	mov	ebp, DWORD PTR [rsp+80]
+	mov	r13d, DWORD PTR [rsp+84]
+	cmp	ebp, DWORD PTR [rsp+64]
 	jne	.L17
-	cmp	DWORD PTR 248[rsp], r13d
+	cmp	DWORD PTR [rsp+68], r13d
 	je	.L16
 .L17:
 	xor	edi, edi
-	call	time@PLT
-	mov	DWORD PTR 248[rsp], r13d
-	mov	QWORD PTR 104[rsp], rax
-	mov	DWORD PTR 228[rsp], ebp
+	call	time
+	mov	DWORD PTR [rsp+68], r13d
+	mov	QWORD PTR [rsp+56], rax
+	mov	DWORD PTR [rsp+64], ebp
 .L16:
 	xor	edi, edi
-	call	time@PLT
-	mov	QWORD PTR 304[rsp], rax
-	sub	eax, DWORD PTR 104[rsp]
-	mov	DWORD PTR 48[rsp], eax
+	call	time
+	mov	QWORD PTR [rsp+120], rax
+	sub	eax, DWORD PTR [rsp+56]
 	cmp	eax, 99
+	setg	r14b
 	jle	.L18
-	mov	rdi, QWORD PTR 120[rsp]
 	xor	eax, eax
 	mov	edx, 420
 	mov	esi, 577
-	call	open@PLT
+	lea	rdi, [rsp+912]
+	call	open
 	test	eax, eax
 	js	.L19
 	mov	edi, eax
-	call	close@PLT
+	call	close
 .L19:
 	xor	esi, esi
-	lea	rdi, .LC23[rip]
+	mov	edi, OFFSET FLAT:.LC23
 	xor	eax, eax
-	call	open@PLT
+	call	open
 	mov	ebp, eax
 	test	eax, eax
-	js	.L150
-	mov	rsi, QWORD PTR 24[rsp]
+	js	.L22
 	mov	edi, eax
 	mov	edx, 31
-	call	read@PLT
+	lea	rsi, [rsp+1168]
+	call	read
 	mov	edi, ebp
 	mov	r13, rax
-	call	close@PLT
+	call	close
 	test	r13, r13
-	jle	.L151
-	mov	BYTE PTR 3392[rsp+r13], 0
-	mov	rdi, QWORD PTR 24[rsp]
+	jle	.L22
 	mov	edx, 10
 	xor	esi, esi
-	call	__isoc23_strtol@PLT
-	xor	esi, esi
-	lea	rdi, .LC24[rip]
+	lea	rdi, [rsp+1168]
+	mov	BYTE PTR [rsp+1168+r13], 0
+	call	strtol
 	mov	r13d, eax
+.L21:
+	xor	esi, esi
+	mov	edi, OFFSET FLAT:.LC24
 	xor	eax, eax
-	call	open@PLT
+	call	open
 	mov	ebp, eax
 	test	eax, eax
-	js	.L25
-.L21:
-	mov	r14, QWORD PTR 24[rsp]
-	mov	edi, ebp
+	js	.L24
+	mov	edi, eax
 	mov	edx, 31
-	mov	rsi, r14
-	call	read@PLT
+	lea	rsi, [rsp+1168]
+	call	read
 	mov	edi, ebp
 	mov	r15, rax
-	call	close@PLT
+	call	close
 	test	r15, r15
-	jle	.L25
-	mov	BYTE PTR 3392[rsp+r15], 0
+	jle	.L24
 	mov	edx, 10
 	xor	esi, esi
-	mov	rdi, r14
-	lea	r15, .LC1[rip]
-	call	__isoc23_strtol@PLT
+	lea	rdi, [rsp+1168]
+	mov	BYTE PTR [rsp+1168+r15], 0
+	call	strtol
+	mov	r15d, OFFSET FLAT:.LC3
 	cmp	eax, 1
-	jne	.L25
-.L22:
-	mov	rsi, QWORD PTR 200[rsp]
-	mov	rdi, QWORD PTR 192[rsp]
-	call	localtime_r@PLT
-	movsxd	rbp, DWORD PTR 360[rsp]
-	mov	r9, r15
+	jne	.L24
+.L26:
+	lea	rsi, [rsp+208]
+	lea	rdi, [rsp+120]
+	call	localtime_r
+	mov	eax, 715827883
+	mov	r8d, r13d
+	mov	rcx, r15
+	mov	esi, DWORD PTR [rsp+216]
+	imul	esi
+	mov	eax, esi
+	mov	ebp, esi
+	sar	eax, 31
+	sar	edx
+	sub	edx, eax
+	lea	eax, [rdx+rdx*2]
+	mov	edx, OFFSET FLAT:.LC7
+	sal	eax, 2
+	sub	ebp, eax
+	mov	eax, 12
+	cmove	ebp, eax
+	cmp	esi, 11
+	mov	eax, OFFSET FLAT:.LC6
 	mov	esi, 128
-	lea	r8, .LC25[rip]
-	mov	ecx, 128
-	mov	rax, rbp
-	imul	rbp, rbp, 715827883
-	cdq
-	sar	rbp, 33
-	sub	ebp, edx
-	lea	edx, 0[rbp+rbp*2]
-	mov	ebp, eax
-	sal	edx, 2
-	sub	ebp, edx
-	mov	edx, 12
-	cmove	ebp, edx
-	cmp	eax, 12
-	lea	rdx, .LC7[rip]
-	lea	rax, .LC6[rip]
-	cmovge	rdx, rax
+	cmovle	rax, rdx
 	sub	rsp, 8
-	.cfi_def_cfa_offset 7576
-	push	rdx
-	.cfi_def_cfa_offset 7584
-	mov	eax, DWORD PTR 368[rsp]
-	mov	edx, 1
+	.cfi_def_cfa_offset 5336
+	mov	edx, OFFSET FLAT:.LC25
+	mov	r9d, ebp
 	push	rax
-	.cfi_def_cfa_offset 7592
-	mov	eax, DWORD PTR 380[rsp]
+	.cfi_def_cfa_offset 5344
+	mov	eax, DWORD PTR [rsp+224]
 	push	rax
-	.cfi_def_cfa_offset 7600
+	.cfi_def_cfa_offset 5352
+	mov	eax, DWORD PTR [rsp+236]
+	push	rax
+	.cfi_def_cfa_offset 5360
 	xor	eax, eax
-	push	rbp
-	.cfi_def_cfa_offset 7608
-	push	r13
-	.cfi_def_cfa_offset 7616
-	mov	rdi, QWORD PTR 88[rsp]
-	call	__snprintf_chk@PLT
-	add	rsp, 48
-	.cfi_def_cfa_offset 7568
+	lea	rdi, [rsp+304]
+	call	snprintf
+	add	rsp, 32
+	.cfi_def_cfa_offset 5328
 	mov	edx, 1
 	mov	rdi, rbx
-	lea	rsi, .LC26[rip]
-	call	XInternAtom@PLT
+	mov	esi, OFFSET FLAT:.LC26
+	call	XInternAtom
 	test	rax, rax
-	je	.L31
+	je	.L36
 	xor	r9d, r9d
 	mov	r8d, 1024
-	xor	ecx, ecx
 	mov	rdx, rax
-	mov	QWORD PTR 336[rsp], 0
 	mov	rdi, rbx
-	push	QWORD PTR 216[rsp]
-	.cfi_def_cfa_offset 7576
-	push	QWORD PTR 104[rsp]
-	.cfi_def_cfa_offset 7584
-	push	QWORD PTR 104[rsp]
-	.cfi_def_cfa_offset 7592
-	push	QWORD PTR 96[rsp]
-	.cfi_def_cfa_offset 7600
-	push	QWORD PTR 112[rsp]
-	.cfi_def_cfa_offset 7608
+	lea	rcx, [rsp+160]
+	mov	QWORD PTR [rsp+160], 0
+	push	rcx
+	.cfi_def_cfa_offset 5336
+	push	r12
+	.cfi_def_cfa_offset 5344
+	lea	rcx, [rsp+160]
+	push	rcx
+	.cfi_def_cfa_offset 5352
+	lea	rcx, [rsp+152]
+	push	rcx
+	.cfi_def_cfa_offset 5360
+	lea	rcx, [rsp+168]
+	push	rcx
+	.cfi_def_cfa_offset 5368
+	xor	ecx, ecx
 	push	33
-	.cfi_def_cfa_offset 7616
-	mov	rsi, QWORD PTR 56[rsp]
-	call	XGetWindowProperty@PLT
+	.cfi_def_cfa_offset 5376
+	mov	rsi, QWORD PTR [rsp+56]
+	call	XGetWindowProperty
 	add	rsp, 48
-	.cfi_def_cfa_offset 7568
+	.cfi_def_cfa_offset 5328
 	test	eax, eax
-	jne	.L31
-	mov	r14, QWORD PTR 336[rsp]
-	test	r14, r14
-	je	.L152
+	jne	.L36
+	mov	r15, QWORD PTR [rsp+160]
+	test	r15, r15
+	je	.L36
+	cmp	QWORD PTR [rsp+144], 0
+	je	.L30
+	mov	DWORD PTR [rsp+32], ebp
 	xor	r13d, r13d
-	cmp	QWORD PTR 320[rsp], 0
-	je	.L42
-	mov	DWORD PTR 252[rsp], ebp
-	mov	r15, QWORD PTR 208[rsp]
-	.p2align 4
+	.p2align 4,,10
 	.p2align 3
 .L35:
-	mov	rsi, QWORD PTR [r14+r13*8]
-	mov	rdx, r15
+	mov	rsi, QWORD PTR [r15+r13*8]
 	mov	rdi, rbx
-	mov	QWORD PTR 344[rsp], 0
-	call	XFetchName@PLT
+	lea	rdx, [rsp+1168]
+	mov	QWORD PTR [rsp+1168], 0
+	call	XFetchName
 	test	eax, eax
-	jle	.L38
-	mov	rbp, QWORD PTR 344[rsp]
+	jle	.L31
+	mov	rbp, QWORD PTR [rsp+1168]
 	test	rbp, rbp
-	je	.L38
+	je	.L31
+	mov	esi, OFFSET FLAT:.LC27
 	mov	rdi, rbp
-	lea	rsi, .LC27[rip]
-	call	strstr@PLT
-	mov	rdi, rbp
+	call	strstr
 	test	rax, rax
-	jne	.L153
-	call	XFree@PLT
-.L38:
-	add	r13, 1
-	cmp	r13, QWORD PTR 320[rsp]
-	jb	.L35
-	mov	ebp, DWORD PTR 252[rsp]
-	mov	r14, QWORD PTR 336[rsp]
-.L42:
-	mov	rdi, r14
-	call	XFree@PLT
-	.p2align 4
-	.p2align 3
+	jne	.L139
+	mov	rdi, rbp
+	call	XFree
 .L31:
-	mov	rdi, QWORD PTR 128[rsp]
+	add	r13, 1
+	cmp	r13, QWORD PTR [rsp+144]
+	jb	.L35
+	mov	ebp, DWORD PTR [rsp+32]
+	mov	r15, QWORD PTR [rsp+160]
+.L30:
+	mov	rdi, r15
+	call	XFree
+	.p2align 4,,10
+	.p2align 3
+.L36:
 	xor	esi, esi
+	lea	rdi, [rsp+656]
 	xor	eax, eax
-	call	open@PLT
+	call	open
 	mov	r13d, eax
 	test	eax, eax
-	js	.L43
-.L33:
-	mov	rsi, QWORD PTR 24[rsp]
-	mov	edi, r13d
+	js	.L60
+	mov	edi, eax
 	mov	edx, 4095
-	call	read@PLT
+	lea	rsi, [rsp+1168]
+	call	read
 	mov	edi, r13d
 	mov	r15, rax
-	call	close@PLT
+	call	close
 	test	r15, r15
-	jle	.L43
-	mov	BYTE PTR 3392[rsp+r15], 0
-	mov	rdi, QWORD PTR 24[rsp]
-	lea	rsi, .LC28[rip]
-	lea	r15, .LC10[rip]
-	lea	r13, .LC11[rip]
-	call	strstr@PLT
+	jle	.L60
+	mov	esi, OFFSET FLAT:.LC28
+	lea	rdi, [rsp+1168]
+	mov	BYTE PTR [rsp+1168+r15], 0
+	mov	r13d, OFFSET FLAT:.LC13
+	call	strstr
+	mov	r15d, OFFSET FLAT:.LC12
+	mov	edx, OFFSET FLAT:.LC8
 	test	rax, rax
-	je	.L43
-.L45:
+	mov	eax, OFFSET FLAT:.LC9
+	cmove	r15, rdx
+	cmove	r13, rax
+.L37:
+	lea	rdi, [rsp+176]
 	mov	rsi, r13
-	mov	rdi, r12
-	call	strcmp@PLT
+	call	strcmp
 	test	eax, eax
-	jne	.L154
-.L46:
-	mov	r14, QWORD PTR 64[rsp]
-	mov	rcx, QWORD PTR 40[rsp]
+	jne	.L140
+.L38:
+	mov	r13, QWORD PTR [rsp+40]
+	lea	rcx, [rsp+272]
 	mov	edx, 1
 	xor	eax, eax
 	mov	esi, 2
-	mov	rdi, r14
-	call	xosd_display@PLT
-	mov	rdi, r14
-	xor	eax, eax
+	mov	rdi, r13
+	call	xosd_display
 	mov	rcx, r15
 	mov	edx, 1
+	mov	rdi, r13
 	mov	esi, 3
-	call	xosd_display@PLT
-	mov	rdi, r14
-	call	xosd_show@PLT
-	cmp	DWORD PTR 48[rsp], 99
-	jle	.L48
-	cmp	BYTE PTR 227[rsp], 0
-	jne	.L155
-.L48:
-	mov	esi, DWORD PTR 20[rsp]
+	xor	eax, eax
+	call	xosd_display
+	mov	rdi, r13
+	call	xosd_show
+	cmp	QWORD PTR [rsp+24], 0
+	setne	al
+	test	r14b, r14b
+	je	.L40
+	test	al, al
+	jne	.L141
+.L40:
+	mov	esi, DWORD PTR [rsp+16]
 	test	esi, esi
-	je	.L58
-	cmp	BYTE PTR 227[rsp], 0
-	je	.L58
-	mov	rdi, QWORD PTR 112[rsp]
-	call	xosd_hide@PLT
-	mov	DWORD PTR 20[rsp], 0
-.L58:
-	mov	r9, QWORD PTR 72[rsp]
-	mov	r8, QWORD PTR 96[rsp]
+	je	.L51
+	test	al, al
+	je	.L51
+	mov	rdi, QWORD PTR [rsp+24]
+	call	xosd_hide
+	mov	DWORD PTR [rsp+16], 0
+.L51:
+	mov	rsi, QWORD PTR [rsp+8]
+	lea	r9, [rsp+100]
+	lea	r8, [rsp+144]
 	mov	rdi, rbx
-	mov	rcx, QWORD PTR 88[rsp]
-	mov	rdx, QWORD PTR 80[rsp]
-	mov	rsi, QWORD PTR 8[rsp]
-	call	XQueryTree@PLT
+	lea	rcx, [rsp+136]
+	lea	rdx, [rsp+128]
+	call	XQueryTree
 	test	eax, eax
-	je	.L60
-	mov	ecx, DWORD PTR 284[rsp]
-	mov	r13, QWORD PTR 216[rsp]
+	je	.L53
+	mov	ecx, DWORD PTR [rsp+100]
 	xor	ebp, ebp
+	mov	r15, QWORD PTR [rsp+72]
 	test	ecx, ecx
-	jne	.L61
-	jmp	.L66
+	jne	.L54
+	jmp	.L59
 	.p2align 4,,10
 	.p2align 3
-.L156:
-	call	XFree@PLT
-	mov	rax, QWORD PTR 328[rsp]
+.L142:
+	call	XFree
 	xor	edx, edx
+	mov	esi, OFFSET FLAT:.LC31
 	mov	rdi, rbx
-	lea	rsi, .LC31[rip]
-	mov	r14, QWORD PTR [rax+rbp*8]
-	call	XInternAtom@PLT
+	mov	rax, QWORD PTR [rsp+144]
+	mov	rax, QWORD PTR [rax+r13*8]
+	mov	QWORD PTR [rsp+32], rax
+	call	XInternAtom
 	xor	edx, edx
-	lea	rsi, .LC32[rip]
+	mov	esi, OFFSET FLAT:.LC32
 	mov	rdi, rbx
-	movq	xmm1, rax
-	movq	xmm0, r14
-	punpcklqdq	xmm0, xmm1
-	movaps	XMMWORD PTR 48[rsp], xmm0
-	call	XInternAtom@PLT
+	mov	QWORD PTR [rsp+48], rax
+	call	XInternAtom
 	xor	edx, edx
-	lea	rsi, .LC33[rip]
+	mov	esi, OFFSET FLAT:.LC33
 	mov	rdi, rbx
-	mov	r15, rax
-	call	XInternAtom@PLT
+	mov	r14, rax
+	call	XInternAtom
+	lea	rdi, [rsp+1176]
+	mov	rcx, r15
+	mov	QWORD PTR [r15], 0
+	sub	rcx, rdi
 	mov	rdx, rax
-	mov	rax, QWORD PTR 232[rsp]
-	mov	QWORD PTR [rax], 0
-	mov	rdi, QWORD PTR 240[rsp]
-	mov	QWORD PTR 600[rsp], 0
-	and	rdi, -8
-	sub	rax, rdi
-	lea	ecx, 188[rax]
 	xor	eax, eax
+	mov	QWORD PTR [rsp+1352], 0
+	add	ecx, 188
+	lea	r8, [rsp+1168]
 	shr	ecx, 3
 	rep stosq
-	mov	QWORD PTR 488[rsp], rdx
+	mov	QWORD PTR [rsp+1240], rdx
 	mov	rdi, rbx
 	xor	edx, edx
 	mov	ecx, 1572864
-	mov	DWORD PTR 416[rsp], 33
-	movdqa	xmm0, XMMWORD PTR 48[rsp]
-	mov	r8, QWORD PTR [rsp]
-	mov	DWORD PTR 464[rsp], 32
-	mov	rsi, QWORD PTR 8[rsp]
-	mov	QWORD PTR 472[rsp], 1
-	movaps	XMMWORD PTR 448[rsp], xmm0
-	mov	QWORD PTR 480[rsp], r15
-	mov	QWORD PTR 496[rsp], 1
-	call	XSendEvent@PLT
+	mov	DWORD PTR [rsp+1168], 33
+	movq	xmm0, QWORD PTR [rsp+32]
+	mov	rsi, QWORD PTR [rsp+8]
+	mov	DWORD PTR [rsp+1216], 32
+	mov	QWORD PTR [rsp+1224], 1
+	mov	QWORD PTR [rsp+1232], r14
+	mov	QWORD PTR [rsp+1248], 1
+	movhps	xmm0, QWORD PTR [rsp+48]
+	movaps	XMMWORD PTR [rsp+1200], xmm0
+	call	XSendEvent
 	xor	edx, edx
-	lea	rsi, .LC34[rip]
+	mov	esi, OFFSET FLAT:.LC34
 	mov	rdi, rbx
-	call	XInternAtom@PLT
+	call	XInternAtom
 	mov	ecx, 4294967295
 	xor	r9d, r9d
-	mov	rsi, r14
-	mov	QWORD PTR 344[rsp], rcx
+	mov	rdi, rbx
+	mov	QWORD PTR [rsp+160], rcx
 	mov	rdx, rax
 	mov	r8d, 32
-	mov	rdi, rbx
 	push	1
-	.cfi_def_cfa_offset 7576
+	.cfi_def_cfa_offset 5336
+	lea	rcx, [rsp+168]
+	push	rcx
+	.cfi_def_cfa_offset 5344
+	mov	rsi, QWORD PTR [rsp+48]
 	mov	ecx, 6
-	push	QWORD PTR 216[rsp]
-	.cfi_def_cfa_offset 7584
-	call	XChangeProperty@PLT
-	mov	rax, QWORD PTR 344[rsp]
+	call	XChangeProperty
+	mov	rax, QWORD PTR [rsp+160]
 	mov	rdi, rbx
-	mov	rsi, QWORD PTR [rax+rbp*8]
-	call	XMapWindow@PLT
-	mov	rax, QWORD PTR 344[rsp]
+	mov	rsi, QWORD PTR [rax+r13*8]
+	call	XMapWindow
+	mov	rax, QWORD PTR [rsp+160]
 	mov	rdi, rbx
-	mov	rsi, QWORD PTR [rax+rbp*8]
-	call	XRaiseWindow@PLT
+	mov	rsi, QWORD PTR [rax+r13*8]
+	call	XRaiseWindow
 	pop	rax
-	.cfi_def_cfa_offset 7576
+	.cfi_def_cfa_offset 5336
 	pop	rdx
-	.cfi_def_cfa_offset 7568
-.L64:
-	add	rbp, 1
-	cmp	ebp, DWORD PTR 284[rsp]
-	jnb	.L66
-.L61:
-	mov	rax, QWORD PTR 328[rsp]
-	mov	rdx, r13
+	.cfi_def_cfa_offset 5328
+.L57:
+	add	ebp, 1
+	cmp	ebp, DWORD PTR [rsp+100]
+	jnb	.L59
+.L54:
+	mov	rax, QWORD PTR [rsp+144]
+	mov	r13d, ebp
+	mov	rdx, r12
 	mov	rdi, rbx
-	mov	QWORD PTR 336[rsp], 0
-	mov	rsi, QWORD PTR [rax+rbp*8]
-	call	XFetchName@PLT
+	mov	QWORD PTR [rsp+152], 0
+	mov	rsi, QWORD PTR [rax+r13*8]
+	call	XFetchName
 	test	eax, eax
-	jle	.L64
-	mov	r14, QWORD PTR 336[rsp]
-	test	r14, r14
-	je	.L64
-	mov	rdi, r14
-	lea	rsi, .LC30[rip]
-	call	strcmp@PLT
-	mov	rdi, r14
-	test	eax, eax
-	je	.L156
-	call	XFree@PLT
-	add	rbp, 1
-	cmp	ebp, DWORD PTR 284[rsp]
-	jb	.L61
-	.p2align 4
+	jle	.L57
+	mov	rax, QWORD PTR [rsp+152]
+	test	rax, rax
+	je	.L57
+	mov	edi, OFFSET FLAT:.LC30
+	mov	ecx, 5
+	mov	rsi, rax
+	repz cmpsb
+	mov	rdi, rax
+	seta	dl
+	sbb	dl, 0
+	test	dl, dl
+	je	.L142
+	call	XFree
+	add	ebp, 1
+	cmp	ebp, DWORD PTR [rsp+100]
+	jb	.L54
+	.p2align 4,,10
 	.p2align 3
-.L66:
-	mov	rdi, QWORD PTR 328[rsp]
+.L59:
+	mov	rdi, QWORD PTR [rsp+144]
 	test	rdi, rdi
-	je	.L60
-	call	XFree@PLT
-.L60:
+	je	.L53
+	call	XFree
+.L53:
 	mov	edi, 100000
 	mov	ebp, 1
-	call	usleep@PLT
+	call	usleep
 	jmp	.L10
 	.p2align 4,,10
 	.p2align 3
+.L22:
+	xor	r13d, r13d
+	jmp	.L21
+	.p2align 4,,10
+	.p2align 3
+.L24:
+	mov	r15d, OFFSET FLAT:.LC4
+	cmp	r13d, 84
+	jg	.L26
+	mov	r15d, OFFSET FLAT:.LC1
+	cmp	r13d, 39
+	jg	.L26
+	cmp	r13d, 14
+	mov	r15d, OFFSET FLAT:.LC2
+	mov	eax, OFFSET FLAT:.LC5
+	cmovle	r15, rax
+	jmp	.L26
+	.p2align 4,,10
+	.p2align 3
 .L18:
-	mov	rdi, QWORD PTR 120[rsp]
-	call	unlink@PLT
+	lea	rdi, [rsp+912]
+	call	unlink
 	jmp	.L19
 	.p2align 4,,10
 	.p2align 3
-.L150:
-	xor	esi, esi
-	lea	rdi, .LC24[rip]
-	xor	eax, eax
-	xor	r13d, r13d
-	call	open@PLT
-	mov	ebp, eax
-	test	eax, eax
-	jns	.L21
-.L24:
-	xor	r13d, r13d
-	lea	r15, .LC5[rip]
-	jmp	.L22
-	.p2align 4,,10
-	.p2align 3
-.L25:
-	lea	r15, .LC2[rip]
-	cmp	r13d, 84
-	jg	.L22
-	lea	r15, .LC3[rip]
-	cmp	r13d, 39
-	jg	.L22
-	cmp	r13d, 14
-	jle	.L76
-	lea	r15, .LC4[rip]
-	jmp	.L22
-	.p2align 4,,10
-	.p2align 3
-.L149:
-	mov	rdi, QWORD PTR 64[rsp]
-	call	xosd_hide@PLT
+.L138:
+	mov	rdi, QWORD PTR [rsp+40]
+	call	xosd_hide
 	jmp	.L13
 	.p2align 4,,10
 	.p2align 3
-.L154:
-	mov	rdi, QWORD PTR 64[rsp]
+.L140:
+	mov	rdi, QWORD PTR [rsp+40]
 	mov	rsi, r13
-	call	xosd_set_colour@PLT
-	mov	rax, QWORD PTR 112[rsp]
+	call	xosd_set_colour
+	mov	rax, QWORD PTR [rsp+24]
 	test	rax, rax
-	je	.L47
+	je	.L39
 	mov	rsi, r13
 	mov	rdi, rax
-	call	xosd_set_colour@PLT
-.L47:
+	call	xosd_set_colour
+.L39:
 	mov	edx, 31
 	mov	rsi, r13
-	mov	rdi, r12
-	call	strncpy@PLT
-	jmp	.L46
+	lea	rdi, [rsp+176]
+	call	strncpy
+	jmp	.L38
 	.p2align 4,,10
 	.p2align 3
-.L151:
-	xor	esi, esi
-	lea	rdi, .LC24[rip]
-	xor	eax, eax
-	xor	r13d, r13d
-	call	open@PLT
-	mov	ebp, eax
-	test	eax, eax
-	jns	.L21
-	jmp	.L24
+.L60:
+	mov	r15d, OFFSET FLAT:.LC8
+	mov	r13d, OFFSET FLAT:.LC9
+	jmp	.L37
 	.p2align 4,,10
 	.p2align 3
-.L155:
-	mov	eax, DWORD PTR 352[rsp]
-	mov	r9d, ebp
-	mov	ecx, 16
-	lea	r8, .LC29[rip]
-	mov	edx, 1
+.L141:
+	mov	ecx, ebp
+	mov	edx, OFFSET FLAT:.LC29
 	mov	esi, 16
-	push	rax
-	.cfi_def_cfa_offset 7576
-	mov	eax, DWORD PTR 364[rsp]
-	push	rax
-	.cfi_def_cfa_offset 7584
-	mov	r14, QWORD PTR 40[rsp]
 	xor	eax, eax
-	mov	rdi, r14
-	call	__snprintf_chk@PLT
-	movsx	eax, BYTE PTR 3408[rsp]
-	mov	BYTE PTR 432[rsp], 0
-	mov	BYTE PTR 688[rsp], 0
-	mov	BYTE PTR 944[rsp], 0
-	mov	BYTE PTR 1200[rsp], 0
-	mov	BYTE PTR 1456[rsp], 0
-	mov	BYTE PTR 1712[rsp], 0
-	mov	BYTE PTR 1968[rsp], 0
-	mov	BYTE PTR 2224[rsp], 0
-	pop	r10
-	.cfi_def_cfa_offset 7576
-	pop	r11
-	.cfi_def_cfa_offset 7568
-	test	al, al
-	je	.L49
-	mov	r13, QWORD PTR [rsp]
-	.p2align 4
-	.p2align 3
-.L50:
-	lea	edx, -48[rax]
-	cmp	dl, 9
-	jbe	.L157
-	cmp	al, 58
-	je	.L53
-	mov	rbp, r13
-	.p2align 4
-	.p2align 3
-.L54:
-	mov	rdi, rbp
-	add	rbp, 256
-	call	strlen@PLT
-	mov	r8d, 32
-	mov	WORD PTR -256[rbp+rax], r8w
-	cmp	rbp, r12
-	jne	.L54
-	movsx	eax, BYTE PTR 1[r14]
-	add	r14, 1
-	test	al, al
-	jne	.L50
-.L49:
-	mov	r13, QWORD PTR [rsp]
-	mov	r14, QWORD PTR 112[rsp]
-	xor	ebp, ebp
-	.p2align 4
-	.p2align 3
-.L57:
-	mov	rcx, rbp
-	mov	esi, ebp
-	mov	edx, 1
-	mov	rdi, r14
-	sal	rcx, 8
-	xor	eax, eax
-	add	rbp, 1
-	add	rcx, r13
-	call	xosd_display@PLT
-	cmp	rbp, 8
-	jne	.L57
-	mov	rdi, QWORD PTR 112[rsp]
-	call	xosd_show@PLT
-	mov	DWORD PTR 20[rsp], 1
-	jmp	.L58
+	mov	r9d, DWORD PTR [rsp+208]
+	mov	r8d, DWORD PTR [rsp+212]
+	lea	rdi, [rsp+160]
+	lea	r14, [rsp+161]
+	call	snprintf
+	mov	BYTE PTR [rsp+1168], 0
+	movsx	r13, BYTE PTR [rsp+160]
+	lea	rax, [rsp+3216]
+	mov	BYTE PTR [rsp+1424], 0
+	mov	BYTE PTR [rsp+1680], 0
+	mov	BYTE PTR [rsp+1936], 0
+	mov	BYTE PTR [rsp+2192], 0
+	mov	BYTE PTR [rsp+2448], 0
+	mov	BYTE PTR [rsp+2704], 0
+	mov	BYTE PTR [rsp+2960], 0
+	test	r13b, r13b
+	je	.L50
+	mov	QWORD PTR [rsp+16], rbx
+	mov	r15, rax
 	.p2align 4,,10
 	.p2align 3
-.L157:
-	lea	r15d, -48[rax]
-	lea	rax, ascii_v[rip]
-	mov	rbp, r13
-	sal	r15, 6
-	add	r15, rax
-	.p2align 4
+.L49:
+	lea	eax, [r13-48]
+	cmp	al, 9
+	jbe	.L43
+	xor	ebx, ebx
+	.p2align 4,,10
 	.p2align 3
-.L51:
+.L47:
+	mov	rbp, rbx
+	lea	rax, [rsp+1168]
+	sal	rbp, 8
+	add	rbp, rax
 	mov	rdi, rbp
-	add	r15, 8
-	call	strlen@PLT
-	mov	rsi, QWORD PTR -8[r15]
-	lea	rdi, 0[rbp+rax]
-	add	rbp, 256
-	call	stpcpy@PLT
+	cmp	r13b, 58
+	je	.L143
+	call	strlen
+	add	rbx, 1
+	mov	r8d, 32
+	mov	WORD PTR [rbp+0+rax], r8w
+	cmp	rbx, 8
+	jne	.L47
+	add	r14, 1
+	movsx	r13, BYTE PTR [r14-1]
+	test	r13b, r13b
+	jne	.L49
+.L144:
+	mov	rbx, QWORD PTR [rsp+16]
+.L50:
+	mov	r13, QWORD PTR [rsp+24]
+	xor	ebp, ebp
+	.p2align 4,,10
+	.p2align 3
+.L42:
+	mov	rcx, rbp
+	lea	rax, [rsp+1168]
+	mov	esi, ebp
+	mov	rdi, r13
+	sal	rcx, 8
+	mov	edx, 1
+	add	rbp, 1
+	add	rcx, rax
+	xor	eax, eax
+	call	xosd_display
+	cmp	rbp, 8
+	jne	.L42
+	mov	rdi, QWORD PTR [rsp+24]
+	call	xosd_show
+	mov	DWORD PTR [rsp+16], 1
+	jmp	.L51
+	.p2align 4,,10
+	.p2align 3
+.L143:
+	call	strlen
+	mov	rsi, QWORD PTR ascii_colon[0+rbx*8]
+	add	rbx, 1
+	lea	rdi, [rbp+0+rax]
+	call	stpcpy
 	mov	r9d, 32
 	mov	WORD PTR [rax], r9w
-	cmp	rbp, r12
-	jne	.L51
-	movsx	eax, BYTE PTR 1[r14]
+	cmp	rbx, 8
+	jne	.L47
 	add	r14, 1
-	test	al, al
-	jne	.L50
-	jmp	.L49
+	movsx	r13, BYTE PTR [r14-1]
+	test	r13b, r13b
+	jne	.L49
+	jmp	.L144
 	.p2align 4,,10
 	.p2align 3
-.L53:
-	lea	r15, ascii_colon[rip]
-	mov	rbp, r13
-	.p2align 4
+.L43:
+	sal	r13, 6
+	lea	rbp, [rsp+1168]
+	add	r13, OFFSET FLAT:ascii_v-3072
+	.p2align 4,,10
 	.p2align 3
-.L56:
+.L48:
 	mov	rdi, rbp
-	add	r15, 8
-	call	strlen@PLT
-	mov	rsi, QWORD PTR -8[r15]
-	lea	rdi, 0[rbp+rax]
+	add	r13, 8
+	call	strlen
+	mov	rsi, QWORD PTR [r13-8]
+	lea	rdi, [rbp+0+rax]
 	add	rbp, 256
-	call	stpcpy@PLT
+	call	stpcpy
 	mov	edi, 32
 	mov	WORD PTR [rax], di
-	lea	rax, ascii_colon[rip+64]
-	cmp	r15, rax
-	jne	.L56
-	movsx	eax, BYTE PTR 1[r14]
+	cmp	rbp, r15
+	jne	.L48
 	add	r14, 1
-	test	al, al
-	jne	.L50
-	jmp	.L49
-.L152:
-	mov	rdi, QWORD PTR 128[rsp]
+	movsx	r13, BYTE PTR [r14-1]
+	test	r13b, r13b
+	jne	.L49
+	jmp	.L144
+.L139:
+	mov	rdx, rbp
+	mov	ebp, DWORD PTR [rsp+32]
+	mov	rdi, rdx
+	call	XFree
+	mov	rdi, QWORD PTR [rsp+160]
+	call	XFree
 	xor	esi, esi
-	call	open@PLT
-	mov	r13d, eax
-	test	eax, eax
-	jns	.L33
-	.p2align 4
-	.p2align 3
-.L43:
-	lea	r15, .LC12[rip]
-	lea	r13, .LC13[rip]
-	jmp	.L45
-.L153:
-	mov	ebp, DWORD PTR 252[rsp]
-	call	XFree@PLT
-	mov	rdi, QWORD PTR 336[rsp]
-	call	XFree@PLT
-	mov	rdi, QWORD PTR 128[rsp]
-	xor	esi, esi
+	lea	rdi, [rsp+656]
 	xor	eax, eax
-	call	open@PLT
+	call	open
 	mov	r13d, eax
 	test	eax, eax
-	js	.L40
-	mov	rsi, QWORD PTR 24[rsp]
-	mov	edi, eax
-	mov	edx, 4095
-	call	read@PLT
-	mov	edi, r13d
-	call	close@PLT
-.L40:
-	lea	r15, .LC8[rip]
-	lea	r13, .LC9[rip]
-	jmp	.L45
-.L146:
-	mov	rcx, QWORD PTR stderr[rip]
+	jns	.L145
+.L33:
+	mov	r15d, OFFSET FLAT:.LC10
+	mov	r13d, OFFSET FLAT:.LC11
+	jmp	.L37
+.L135:
 	mov	edx, 33
 	mov	esi, 1
-	lea	rdi, .LC19[rip]
-	call	fwrite@PLT
-.L7:
-	mov	rax, QWORD PTR 7496[rsp]
-	sub	rax, QWORD PTR fs:40
-	jne	.L158
-	add	rsp, 7512
+	mov	edi, OFFSET FLAT:.LC19
+	mov	rcx, QWORD PTR stderr[rip]
+	call	fwrite
+.L127:
+	add	rsp, 5272
 	.cfi_remember_state
 	.cfi_def_cfa_offset 56
 	mov	eax, 1
@@ -984,23 +890,32 @@ main:
 	pop	r15
 	.cfi_def_cfa_offset 8
 	ret
-.L147:
+.L136:
 	.cfi_restore_state
-	mov	rcx, QWORD PTR stderr[rip]
 	mov	edx, 34
 	mov	esi, 1
-	lea	rdi, .LC20[rip]
-	call	fwrite@PLT
+	mov	edi, OFFSET FLAT:.LC20
+	mov	rcx, QWORD PTR stderr[rip]
+	call	fwrite
 	mov	rdi, rbx
-	call	XCloseDisplay@PLT
-	jmp	.L7
-.L158:
-	call	__stack_chk_fail@PLT
-.L76:
-	lea	r15, .LC5[rip]
-	jmp	.L22
+	call	XCloseDisplay
+	jmp	.L127
+.L145:
+	mov	edi, eax
+	mov	edx, 4095
+	lea	rsi, [rsp+1168]
+	call	read
+	mov	edi, r13d
+	mov	r15, rax
+	call	close
+	test	r15, r15
+	jle	.L33
+	mov	BYTE PTR [rsp+1168+r15], 0
+	mov	r13d, OFFSET FLAT:.LC11
+	mov	r15d, OFFSET FLAT:.LC10
+	jmp	.L37
 	.cfi_endproc
-.LFE86:
+.LFE39:
 	.size	main, .-main
 	.section	.rodata.str1.1
 .LC35:
@@ -1009,7 +924,7 @@ main:
 	.string	" /$$"
 .LC37:
 	.string	"|__/"
-	.section	.data.rel.ro.local,"aw"
+	.section	.rodata
 	.align 32
 	.type	ascii_colon, @object
 	.size	ascii_colon, 64
@@ -1115,7 +1030,7 @@ ascii_colon:
 	.string	"|  $$$$$$$"
 .LC83:
 	.string	" \\____  $$"
-	.section	.data.rel.ro.local
+	.section	.rodata
 	.align 32
 	.type	ascii_v, @object
 	.size	ascii_v, 640
@@ -1200,21 +1115,5 @@ ascii_v:
 	.quad	.LC61
 	.quad	.LC44
 	.quad	.LC45
-	.ident	"GCC: (Gentoo 15.2.1_p20260214 p5) 15.2.1 20260214"
+	.ident	"GCC: (GNU) 8.4.0"
 	.section	.note.GNU-stack,"",@progbits
-	.section	.note.gnu.property,"a"
-	.align 8
-	.long	1f - 0f
-	.long	4f - 1f
-	.long	5
-0:
-	.string	"GNU"
-1:
-	.align 8
-	.long	0xc0000002
-	.long	3f - 2f
-2:
-	.long	0x3
-3:
-	.align 8
-4:
