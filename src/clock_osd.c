@@ -16,6 +16,7 @@
 #include <xosd.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
+#include <X11/Xutil.h>
 
 static const char *ascii_v[10][8] = {
     // 0
@@ -43,6 +44,59 @@ static const char *ascii_v[10][8] = {
 static const char *ascii_colon[8] = {
     "    ", " /$$", "|__/", "    ", " /$$", "|__/", "    ", "    "
 };
+
+static int x11_silent_error_handler(Display *d, XErrorEvent *e) {
+    (void)d;
+    (void)e;
+    return 0;
+}
+
+static void make_window_sticky_and_above(Display *dpy, Window root, Window win) {
+    Atom wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
+    Atom state_sticky = XInternAtom(dpy, "_NET_WM_STATE_STICKY", False);
+    Atom state_above = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
+
+    XEvent xev;
+    memset(&xev, 0, sizeof(xev));
+    xev.type = ClientMessage;
+    xev.xclient.window = win;
+    xev.xclient.message_type = wm_state;
+    xev.xclient.format = 32;
+    xev.xclient.data.l[0] = 1; // _NET_WM_STATE_ADD
+    xev.xclient.data.l[1] = state_sticky;
+    xev.xclient.data.l[2] = state_above;
+    xev.xclient.data.l[3] = 1; // source indication
+
+    XSendEvent(dpy, root, False, SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+
+    // Set _NET_WM_DESKTOP to 0xFFFFFFFF (all desktops)
+    Atom wm_desktop = XInternAtom(dpy, "_NET_WM_DESKTOP", False);
+    unsigned long desktop = 0xFFFFFFFF;
+    XChangeProperty(dpy, win, wm_desktop, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&desktop, 1);
+}
+
+static void make_all_xosd_windows_sticky(Display *dpy, Window root) {
+    Window root_return, parent_return, *children;
+    unsigned int nchildren;
+    if (XQueryTree(dpy, root, &root_return, &parent_return, &children, &nchildren)) {
+        for (unsigned int i = 0; i < nchildren; i++) {
+            char *name = NULL;
+            int is_xosd = 0;
+            if (XFetchName(dpy, children[i], &name) > 0 && name) {
+                if (strcmp(name, "XOSD") == 0) {
+                    is_xosd = 1;
+                }
+                XFree(name);
+            }
+            if (is_xosd) {
+                make_window_sticky_and_above(dpy, root, children[i]);
+                XMapWindow(dpy, children[i]);
+                XRaiseWindow(dpy, children[i]);
+            }
+        }
+        if (children) XFree(children);
+    }
+}
 
 static int read_sysfs_int(const char *path) {
     int fd = open(path, O_RDONLY);
@@ -96,6 +150,8 @@ static int check_window_title_contains(Display *dpy, Window root, const char *ne
     return 0;
 }
 
+
+
 int main(void) {
     const char *home = getenv("HOME");
     if (!home) home = "/home/user";
@@ -116,6 +172,7 @@ int main(void) {
         fprintf(stderr, "clock_osd: Cannot open X Display\n");
         return 1;
     }
+    XSetErrorHandler(x11_silent_error_handler);
     Window root = DefaultRootWindow(dpy);
 
     // Create top-right OSD (4 lines: line 0,1 blank, line 2: BAT TIME, line 3: MODE)
@@ -152,6 +209,12 @@ int main(void) {
     int bottom_visible = 0;
 
     while (1) {
+        // Flush X11 event queue to prevent connection choke
+        while (XPending(dpy)) {
+            XEvent ev;
+            XNextEvent(dpy, &ev);
+        }
+
         // Check if stopped
         if (access(stop_file, F_OK) == 0) {
             if (top_visible) {
@@ -194,12 +257,12 @@ int main(void) {
         int online = read_sysfs_int("/sys/class/power_supply/ADP1/online");
         const char *bat_icon;
         if (online == 1) {
-            bat_icon = "⚡";
+            bat_icon = "AC";
         } else {
-            if (perc >= 85) bat_icon = "[███]";
-            else if (perc >= 40) bat_icon = "[██░]";
-            else if (perc >= 15) bat_icon = "[█░░]";
-            else bat_icon = "[░░░]";
+            if (perc >= 85) bat_icon = "[===]";
+            else if (perc >= 40) bat_icon = "[==-]";
+            else if (perc >= 15) bat_icon = "[=--]";
+            else bat_icon = "[---]";
         }
 
         // 3. Time formatting (12h format with a.m./p.m.)
@@ -210,12 +273,8 @@ int main(void) {
         const char *ampm = (tm_info.tm_hour >= 12) ? "p.m." : "a.m.";
 
         char line_top1[128];
-        if (!is_idle) {
-            snprintf(line_top1, sizeof(line_top1), "%s %d%% %02d:%02d %s",
-                     bat_icon, perc, hour12, tm_info.tm_min, ampm);
-        } else {
-            line_top1[0] = '\0';
-        }
+        snprintf(line_top1, sizeof(line_top1), "%s %d%% %02d:%02d:%02d %s",
+                 bat_icon, perc, hour12, tm_info.tm_min, tm_info.tm_sec, ampm);
 
         // 4. Status modes and Color
         int xephyr_active = check_window_title_contains(dpy, root, "ctrl+shift releases");
@@ -244,10 +303,8 @@ int main(void) {
         // Render Top OSD
         xosd_display(osd_top, 2, XOSD_string, line_top1);
         xosd_display(osd_top, 3, XOSD_string, mode_str);
-        if (!top_visible) {
-            xosd_show(osd_top);
-            top_visible = 1;
-        }
+        xosd_show(osd_top);
+        top_visible = 1;
 
         // Render Bottom Big ASCII OSD if idle
         if (is_idle && osd_bottom) {
@@ -273,15 +330,16 @@ int main(void) {
             for (int r = 0; r < 8; r++) {
                 xosd_display(osd_bottom, r, XOSD_string, ascii_lines[r]);
             }
-            if (!bottom_visible) {
-                xosd_show(osd_bottom);
-                bottom_visible = 1;
-            }
+            xosd_show(osd_bottom);
+            bottom_visible = 1;
         } else if (bottom_visible && osd_bottom) {
             xosd_hide(osd_bottom);
             bottom_visible = 0;
         }
 
+
+
+        make_all_xosd_windows_sticky(dpy, root);
         usleep(100000); // 100ms tick
     }
 

@@ -89,13 +89,17 @@ OPCION=$(dialog --clear --title "Lista de opciones" --cancel-label "Salir" \
             ;;
         Reloj_Pantalla)
             if [ ! -f /tmp/clock_is_run_already.pid ]; then
-                while true; do
-                    if [ ! -f $HOME/.stop_personal_osdx ]; then
-                        touch /tmp/clock_is_run_already.pid
-                        dash $HOME/monoliths-hm/optime.personal_osdx.sh
-                    fi
-                    sleep 0.1
-                done
+                if [ -x "$HOME/monoliths-hm/bin/clock_osd" ]; then
+                    exec "$HOME/monoliths-hm/bin/clock_osd"
+                else
+                    while true; do
+                        if [ ! -f $HOME/.stop_personal_osdx ]; then
+                            touch /tmp/clock_is_run_already.pid
+                            dash $HOME/monoliths-hm/optime.personal_osdx.sh
+                        fi
+                        sleep 0.1
+                    done
+                fi
             fi
             ;;
         Esperar_Monitores)

@@ -79,12 +79,12 @@ int main(void) {
 
     const char *bat_icon;
     if (online == 1) {
-        bat_icon = "⚡";
+        bat_icon = "AC";
     } else {
-        if (perc >= 85) bat_icon = "[███]";
-        else if (perc >= 40) bat_icon = "[██░]";
-        else if (perc >= 15) bat_icon = "[█░░]";
-        else bat_icon = "[░░░]";
+        if (perc >= 85) bat_icon = "[===]";
+        else if (perc >= 40) bat_icon = "[==-]";
+        else if (perc >= 15) bat_icon = "[=--]";
+        else bat_icon = "[---]";
     }
 
     time_t now = time(NULL);
@@ -97,7 +97,7 @@ int main(void) {
 
     char line1[128] = "";
     if (access(big_hour_file, F_OK) != 0) {
-        snprintf(line1, sizeof(line1), "%s %d%%  %02d:%02d %s", bat_icon, perc, hr12, tm_now.tm_min, ampm);
+        snprintf(line1, sizeof(line1), "%s %d%%  %02d:%02d:%02d %s", bat_icon, perc, hr12, tm_now.tm_min, tm_now.tm_sec, ampm);
     }
 
     Display *dpy = XOpenDisplay(NULL);
