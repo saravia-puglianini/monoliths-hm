@@ -291,36 +291,26 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
     fi
 
     if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
-        while ! pgrep scrcpy > /dev/null; do
-            if ! grep -qi 'android' /sys/bus/usb/devices/*/product 2>/dev/null; then
-                echo '[USB] Esperando a que conectes el celular por USB...'
-                sleep 0.5
-                continue
-            fi
-
-            if adb devices | grep -v 'List of devices' | grep -q 'device'; then
-                echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
-                SCRCPY_KEYS="--keyboard=sdk"
-                if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
-                    SCRCPY_KEYS="--keyboard=disabled"
-                fi
-                read SW SH <<EOF
+        (
+            while true; do
+                if ! pgrep -x scrcpy > /dev/null; then
+                    if grep -qi 'android' /sys/bus/usb/devices/*/product 2>/dev/null; then
+                        if adb devices | grep -v 'List of devices' | grep -q 'device$'; then
+                            echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
+                            SCRCPY_KEYS="--keyboard=sdk"
+                            if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
+                                SCRCPY_KEYS="--keyboard=disabled"
+                            fi
+                            read SW SH <<EOF
 $(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
 EOF
-                SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || adb kill-server && adb start-server
-            else
-                echo '[ADB] Celular detectado por USB, pero no por ADB. Reiniciando servidor...'
-                SCRCPY_KEYS="--keyboard=sdk"
-                if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
-                    SCRCPY_KEYS="--keyboard=disabled"
+                            DISPLAY=:0 SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d --no-audio $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff
+                        fi
+                    fi
                 fi
-                read SW SH <<EOF
-$(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
-EOF
-                adb kill-server && adb start-server && SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || killall scrcpy
-            fi
-            sleep 0.5
-        done &
+                sleep 2
+            done
+        ) &
     fi
 
     ASM_LOG="$HOME/.alt_tab_maximize_only-session-asm.log"
@@ -344,43 +334,33 @@ if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     while [ -f /usr/bin/google-chrome-stable ]; do
         if is_asus; then
             # Parámetros para ASUS (audio ALSA específico)
-            google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k
+            echo 'google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k'
         else
             # Parámetros para NO-ASUS (aceleración GPU / ANGLE GL)
             google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization
         fi
         sleep 1
     done &
-    while ! pgrep scrcpy > /dev/null; do
-        if ! grep -qi 'android' /sys/bus/usb/devices/*/product 2>/dev/null; then
-            echo '[USB] Esperando a que conectes el celular por USB...'
-            sleep 0.5
-            continue
-        fi
-
-        if adb devices | grep -v 'List of devices' | grep -q 'device'; then
-            echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
-            SCRCPY_KEYS="--keyboard=sdk"
-            if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
-                SCRCPY_KEYS="--keyboard=disabled"
-            fi
-            read SW SH <<EOF
+    (
+        while true; do
+            if ! pgrep -x scrcpy > /dev/null; then
+                if grep -qi 'android' /sys/bus/usb/devices/*/product 2>/dev/null; then
+                    if adb devices | grep -v 'List of devices' | grep -q 'device$'; then
+                        echo '[ADB] ¡Celular detectado y listo! Iniciando scrcpy...'
+                        SCRCPY_KEYS="--keyboard=sdk"
+                        if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
+                            SCRCPY_KEYS="--keyboard=disabled"
+                        fi
+                        read SW SH <<EOF
 $(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
 EOF
-            SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || adb kill-server && adb start-server
-        else
-            echo '[ADB] Celular detectado por USB, pero no por ADB. Reiniciando servidor...'
-            SCRCPY_KEYS="--keyboard=sdk"
-            if ! xinput list --pointer | grep -vE 'Virtual core pointer|XTEST' | grep -q 'id='; then
-                SCRCPY_KEYS="--keyboard=disabled"
+                        DISPLAY=:0 SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d --no-audio $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff
+                    fi
+                fi
             fi
-            read SW SH <<EOF
-$(xdotool getdisplaygeometry 2>/dev/null || echo "1920 1080")
-EOF
-            adb kill-server && adb start-server && SDL_HINT_GRAB_KEYBOARD=0 scrcpy -d $SCRCPY_KEYS --shortcut-mod=lsuper --window-x=0 --window-y=0 --window-width=$SW --window-height=$SH --window-borderless --background-color=#ffffff || killall scrcpy
-        fi
-        sleep 0.5
-    done &
+            sleep 2
+        done
+    ) &
 
 elif [ "$CURRENT_TTY" = "/dev/tty2" ]; then
     sleep 1 && gromit-mpx &

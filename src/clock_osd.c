@@ -89,9 +89,11 @@ static void make_all_xosd_windows_sticky(Display *dpy, Window root) {
                 XFree(name);
             }
             if (is_xosd) {
-                make_window_sticky_and_above(dpy, root, children[i]);
-                XMapWindow(dpy, children[i]);
-                XRaiseWindow(dpy, children[i]);
+                XWindowAttributes attr;
+                if (XGetWindowAttributes(dpy, children[i], &attr) && attr.map_state != IsUnmapped) {
+                    make_window_sticky_and_above(dpy, root, children[i]);
+                    XRaiseWindow(dpy, children[i]);
+                }
             }
         }
         if (children) XFree(children);

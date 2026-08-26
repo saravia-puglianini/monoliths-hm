@@ -278,6 +278,7 @@ if [ -z "$PARAM" ]; then
     echo '695) audio-jbl-filter-loopback-sof - Out JBL + In JBL + Loopback Mic Laptop Filtrado en JBL'
     echo '696) audio-qa-test - Ejecutar suite de pruebas QA Audio interactiva'
     echo '697) audio-stop / detener-todos-los-modulos-de-audio - Detener y descargar todos los módulos y procesos de audio'
+    echo '698) comprimir-subir-demo - Comprimir blob, optime, bloat y subir a demo:~/public/ con st'
     echo ''
 fi
 
@@ -1469,6 +1470,10 @@ EOF
 	;;
     697|audio-stop|detener-todos-los-modulos-de-audio|detener-todos-los-modulos-de-audio.sh)
 	bash $HOME/monoliths-llm/detener-todos-los-modulos-de-audio.sh
+	;;
+    698|comprimir-subir-demo|comprimir_y_subir_demo|comprimir_y_subir_demo.sh)
+	export DISPLAY=:0
+	st -e bash $HOME/monoliths-llm/comprimir_y_subir_demo.sh
 	;;
     *)
 	echo 'Opción no mapeada.'
