@@ -156,7 +156,7 @@ case "$USER_INPUT" in
             ;;
     12|Lautstaerkeregler)
             export DISPLAY=:0
-            xterm -e 'alsamixer'
+            st -e alsamixer
             ;;
     13|Pieptoene_Stumm)
             doas rmmod pcspkr

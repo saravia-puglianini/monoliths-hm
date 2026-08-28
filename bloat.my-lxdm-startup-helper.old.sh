@@ -165,7 +165,7 @@ while true; do
             [ -f "$HOME/.stop_personal_osdx" ] && rm "$HOME/.stop_personal_osdx" || touch "$HOME/.stop_personal_osdx"
             ;;
 	volume)
-	    xterm -e 'alsamixer'
+	    st -e alsamixer
 	    ;;
 	quitar_beep)
 	    doas rmmod pcspkr
@@ -210,7 +210,7 @@ while true; do
             ( echo 0 | doas tee /sys/class/leds/ath9k_htc-phy1/brightness || echo 0 | doas tee /sys/class/leds/ath9k_htc-phy0/brightness )
             ;;
 	cascada_xephyr)
-            xterm -e 'bash $HOME/.cascada.sh' &
+            st -e bash $HOME/.cascada.sh &
             ;;
 	siempre_encendido)
             xset s off && xset s noblank && xset -dpms
@@ -281,7 +281,7 @@ while true; do
             ;;
 	ver_yt_local_como_hacker)
 	    doas service sndiod start || doas service sndiod restart &
-	    (xterm -e alsamixer) &
+	    (st -e alsamixer) &
             (badwolf 'http://192.168.178.38') &
 	    (sleep 1 && wmctrl -r 'YT Local' -b add,fullscreen) &
             ;;

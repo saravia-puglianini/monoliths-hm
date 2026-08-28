@@ -32,6 +32,20 @@ fi
 OPT="$PERC%"
 TIME=$(LC_ALL=es_PE.utf8 TZ=America/Lima date +' %I:%M %p' | tr '[:upper:]' '[:lower:]' | sed 's/am/a.m./;s/pm/p.m./')
 
+# Día y fecha en español, sin depender de que el locale español esté instalado.
+case "$(TZ=America/Lima date +%u)" in
+    1) WEEKDAY=LUNES ;; 2) WEEKDAY=MARTES ;; 3) WEEKDAY=MIERCOLES ;;
+    4) WEEKDAY=JUEVES ;; 5) WEEKDAY=VIERNES ;; 6) WEEKDAY=SABADO ;;
+    7) WEEKDAY=DOMINGO ;;
+esac
+case "$(TZ=America/Lima date +%m)" in
+    01) MONTH=ENERO ;; 02) MONTH=FEBRERO ;; 03) MONTH=MARZO ;;
+    04) MONTH=ABRIL ;; 05) MONTH=MAYO ;; 06) MONTH=JUNIO ;;
+    07) MONTH=JULIO ;; 08) MONTH=AGOSTO ;; 09) MONTH=SEPTIEMBRE ;;
+    10) MONTH=OCTUBRE ;; 11) MONTH=NOVIEMBRE ;; 12) MONTH=DICIEMBRE ;;
+esac
+DATE_LINE="$(TZ=America/Lima date +%-d) de $MONTH del $(TZ=America/Lima date +%Y)"
+
 # 4. Lógica de visualización con xdotool en vez de wmctrl
 # Si no hay batería o capacidad es 0, ocultar info de batería si se desea, 
 # pero aquí mantengo el comportamiento original simplificado.
@@ -39,11 +53,13 @@ TIME=$(LC_ALL=es_PE.utf8 TZ=America/Lima date +' %I:%M %p' | tr '[:upper:]' '[:l
 XEPHYR_ACTIVE=$(xdotool search --name "ctrl+shift releases" 2>/dev/null)
 KEYBOARD_MODE=$(grep -q 'NOT MOUSE' "$HOME/.xbindkeysrc" 2>/dev/null && echo 'Keyboard quit Alt+2' || echo 'Mouse quit Alt+1')
 
-printf "\n\n%s\n%s" \
+printf "%s\n\n%s\n\n%s\n%s" \
+       "$WEEKDAY" \
+       "$DATE_LINE" \
        "$([ ! -f $HOME/.big_hour ] && echo -n $BAT $OPT $TIME)" \
        "$([ -n "$XEPHYR_ACTIVE" ] && echo 'Xephyr quit Ctrl+Shift' || echo "$KEYBOARD_MODE")" | \
     osd_cat --pos=top --align=right --offset=50 \
         --color="$([ -n "$XEPHYR_ACTIVE" ] && echo 'red' || (grep -q 'NOT MOUSE' "$HOME/.xbindkeysrc" 2>/dev/null && echo 'green' || echo 'orange'))" \
-        --shadow=1 --delay=1 --lines=4
+        --shadow=1 --delay=1 --lines=6
 
 bash $HOME/monoliths-hm/hour_big_ascii.sh

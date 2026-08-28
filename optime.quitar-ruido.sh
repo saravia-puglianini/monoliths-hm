@@ -5,7 +5,7 @@ if command -v ffmpeg > /dev/null && \
 		sleep 0.5 && [ -f '/tmp/audio.aac' ]; then
     
     # Notificación
-    herbe 'Guarda el resultado como /tmp/audio.mp3' & 
+    printf 'Guarda el resultado como /tmp/audio.mp3' | osd_cat --pos=top --align=right --offset=50 --color=green --shadow=1 --delay=3 --lines=1 &
     audacity /tmp/audio.aac
     
     if ffmpeg -y -i '/tmp/audio.mp3' -b:a 64k '/tmp/output.aac' && \

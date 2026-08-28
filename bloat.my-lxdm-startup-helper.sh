@@ -155,7 +155,7 @@ while true; do
             [ -f "$HOME/.stop_personal_osdx" ] && rm "$HOME/.stop_personal_osdx" || touch "$HOME/.stop_personal_osdx"
             ;;
 	volume)
-	    xterm -e 'alsamixer'
+	    st -e alsamixer
 	    ;;
 	quitar_beep)
 	    doas rmmod pcspkr

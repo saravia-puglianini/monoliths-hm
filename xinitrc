@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Persistencia de aplicaciones principales.
+# true: volver a abrir si se cierra. false: iniciar una sola vez.
+emacs_persistent=false
+chrome_persistent=true
+RUN_EMACS_AT_START=false
+RUN_CHROME_AT_START=true
+export emacs_persistent chrome_persistent RUN_EMACS_AT_START RUN_CHROME_AT_START
+
 # Sincronizar cookies Xauthority si se pasa por xinit -auth
 if [ -n "$XAUTHORITY" ] && [ -f "$XAUTHORITY" ] && [ "$XAUTHORITY" != "$HOME/.Xauthority" ]; then
     xauth merge "$XAUTHORITY" 2>/dev/null
@@ -11,6 +19,75 @@ fi
 is_asus() {
     grep -qi 'asus' /sys/class/dmi/id/sys_vendor 2>/dev/null || \
     grep -qi 'zenbook' /sys/class/dmi/id/product_name 2>/dev/null
+}
+
+run_emacs_main() {
+    emacs $MIXEDCOLOR -mm --debug-init \
+        -l "$HOME/monoliths-hm/my.shell.el" \
+        -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" \
+        --eval '(generate-hyperbole-scratch-menu)' \
+        --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)'
+}
+
+start_emacs_managed() {
+    [ "$RUN_EMACS_AT_START" = "true" ] || return 0
+    [ -x /usr/bin/emacs ] || return 0
+    if [ "$emacs_persistent" = "true" ]; then
+        (
+            while [ -x /usr/bin/emacs ]; do
+                sleep 1
+                run_emacs_main
+            done
+        ) &
+    else
+        (sleep 1; run_emacs_main) &
+    fi
+}
+
+run_chrome_main() {
+    # Chrome puede dejar estos enlaces tras un cierre brusco. Si no queda
+    # ningún Chrome vivo, son huérfanos e impiden volver a abrir el perfil.
+    if ! pgrep -x chrome >/dev/null 2>&1; then
+        for singleton_path in \
+            "$HOME/.config/google-chrome/SingletonLock" \
+            "$HOME/.config/google-chrome/SingletonSocket" \
+            "$HOME/.config/google-chrome/SingletonCookie"
+        do
+            [ -L "$singleton_path" ] && unlink "$singleton_path"
+        done
+    fi
+
+    if is_asus; then
+        google-chrome-stable --use-alsa \
+            --disable-audio-service-sandbox \
+            --alsa-input-device=entrada_buena_16k
+    else
+        google-chrome-stable --use-gl=angle --use-angle=gl \
+            --ignore-gpu-blocklist --disable-vulkan \
+            --disable-features=Vulkan --disable-gpu-rasterization
+    fi
+}
+
+start_chrome_managed() {
+    [ "$RUN_CHROME_AT_START" = "true" ] || return 0
+    [ -x /usr/bin/google-chrome-stable ] || return 0
+    if [ "$chrome_persistent" = "true" ]; then
+        (
+            while [ -x /usr/bin/google-chrome-stable ]; do
+                # Si Chrome ya existe, esperar a que cierre. Esto evita llamar
+                # al lanzador una vez por segundo mientras sigue abierto.
+                if ! pgrep -x chrome >/dev/null 2>&1; then
+                    run_chrome_main
+                fi
+                while pgrep -x chrome >/dev/null 2>&1; do
+                    sleep 1
+                done
+                sleep 1
+            done
+        ) &
+    else
+        run_chrome_main &
+    fi
 }
 
 # Load X resources
@@ -270,16 +347,37 @@ CURRENT_TTY=$(tty)
 NOGUI=false
 
 pgrep xbindkeys | xargs kill 2>/dev/null
-pgrep hotkey_listener_asm | xargs kill 2>/dev/null
 killall hotkey_listener_asm 2>/dev/null
-sleep 0.1
-if [ -x /home/user/monoliths-llm/hotkey_listener_asm ]; then
-    /home/user/monoliths-llm/hotkey_listener_asm &
+
+# Iniciar el listener independientemente del estado/presencia de la batería.
+# En un arranque en frío los dispositivos de entrada pueden aparecer después
+# de X; si el listener termina por ello, reintentarlo en vez de perder hotkeys.
+if [ -x "$HOME/monoliths-llm/hotkey_listener_asm" ]; then
+    HOTKEY_LISTENER="$HOME/monoliths-llm/hotkey_listener_asm"
 elif command -v hotkey_listener_asm >/dev/null 2>&1; then
-    sleep 1.5 && hotkey_listener_asm &
+    HOTKEY_LISTENER=$(command -v hotkey_listener_asm)
+else
+    HOTKEY_LISTENER=""
 fi
 
-# Ahorro de energía: si no está conectado a la corriente, ejecutar únicamente emacs y menú yad
+if [ -n "$HOTKEY_LISTENER" ]; then
+    (
+        HOTKEY_LOG="$HOME/.hotkey_listener_asm.log"
+        # Dar tiempo a udev/XInput en arranques sin batería conectada.
+        sleep 1
+        while [ -x "$HOTKEY_LISTENER" ]; do
+            echo "=== Iniciando hotkey_listener_asm [$(date)] ===" >> "$HOTKEY_LOG"
+            "$HOTKEY_LISTENER" >> "$HOTKEY_LOG" 2>&1
+            EXIT_CODE=$?
+            echo "=== hotkey_listener_asm terminó con código $EXIT_CODE [$(date)]; reintentando ===" >> "$HOTKEY_LOG"
+            sleep 2
+        done
+    ) &
+fi
+
+unset HOTKEY_LISTENER
+
+# Modo batería: mantener la configuración de persistencia de las aplicaciones.
 if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_supply/ADP1/online)" = "0" ]; then
     if [ -f /usr/bin/emacs ]; then
         echo deep | doas tee /sys/power/mem_sleep &
@@ -287,8 +385,12 @@ if [ -f /sys/class/power_supply/ADP1/online ] && [ "$(cat /sys/class/power_suppl
         echo TXHC | doas tee /proc/acpi/wakeup &
         echo 1 | doas tee /sys/devices/system/cpu/intel_pstate/no_turbo &
         echo 1200000 | doas tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq &
-        sleep 1 && emacs -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' &
+        start_emacs_managed
     fi
+
+    # Esta rama termina con exec más abajo, por lo que Chrome debe iniciarse
+    # aquí también; de otro modo chrome_persistent nunca llega a evaluarse.
+    start_chrome_managed
 
     if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
         (
@@ -315,7 +417,7 @@ EOF
 
     ASM_LOG="$HOME/.alt_tab_maximize_only-session-asm.log"
     echo "=== [BATTERY MODE] Iniciando alt_tab_maximize_emacs_asm [$(date)] ===" >> "$ASM_LOG"
-    alt_tab_maximize_emacs_asm-session >> "$ASM_LOG" 2>&1
+    "$HOME/.local/bin/alt_tab_maximize_emacs_asm-session" >> "$ASM_LOG" 2>&1
     EXIT_CODE=$?
     echo "=== [BATTERY MODE] alt_tab_maximize_emacs_asm terminó/falló con código: $EXIT_CODE [$(date)] ===" >> "$ASM_LOG"
 
@@ -329,18 +431,9 @@ fi
 
 if [ "$CURRENT_TTY" = "/dev/tty1" ]; then
     MIXEDCOLOR=''
-    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
+    start_emacs_managed
     sleep 1
-    while [ -f /usr/bin/google-chrome-stable ]; do
-        if is_asus; then
-            # Parámetros para ASUS (audio ALSA específico)
-            echo 'google-chrome-stable --use-alsa --disable-audio-service-sandbox --alsa-input-device=entrada_buena_16k'
-        else
-            # Parámetros para NO-ASUS (aceleración GPU / ANGLE GL)
-            google-chrome-stable --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-vulkan --disable-features=Vulkan --disable-gpu-rasterization
-        fi
-        sleep 1
-    done &
+    start_chrome_managed
     (
         while true; do
             if ! pgrep -x scrcpy > /dev/null; then
@@ -383,7 +476,7 @@ elif [ "$CURRENT_TTY" = "/dev/tty4" ]; then
     sleep 1 && dash ~/literatura/message_img.sh 'Literatura desde cualquier idioma al alemán' &
     sleep 1 && cd ~/Literatur; while true; do dash literatura.sh; done &
 else
-    while [ -f /usr/bin/emacs ]; do sleep 1; emacs $MIXEDCOLOR -mm --debug-init -l "$HOME/monoliths-hm/my.shell.el" -l "$HOME/amd64gnu+linux/my.amd64gnu+linux.el" --eval '(generate-hyperbole-scratch-menu)' --eval '(generate-hyperbole-scratch-amd64gnu+linux-menu)' ; done &
+    start_emacs_managed
 fi
 
 # Asus ZenBook específicas (enfriamiento y deskflow)
@@ -396,7 +489,7 @@ if ! $NOGUI; then
     ASM_LOG="$HOME/.alt_tab_maximize_only-session-asm.log"
     echo "=== Iniciando alt_tab_maximize_emacs_asm [$(date)] ===" >> "$ASM_LOG"
     
-    alt_tab_maximize_emacs_asm-session >> "$ASM_LOG" 2>&1
+    "$HOME/.local/bin/alt_tab_maximize_emacs_asm-session" >> "$ASM_LOG" 2>&1
     EXIT_CODE=$?
     
     echo "=== alt_tab_maximize_emacs_asm terminó/falló con código: $EXIT_CODE [$(date)] ===" >> "$ASM_LOG"

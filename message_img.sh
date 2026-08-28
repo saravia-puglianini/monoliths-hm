@@ -26,9 +26,9 @@ convert -size "${width}x${height}" xc:white \
     -draw "text 0,0 '$text'" \
     "$F"
 
-pgrep feh | xargs kill > /dev/null 2>&1 &
+pkill -x display > /dev/null 2>&1 &
 sleep 0.1
-feh --borderless "$F" > /dev/null 2>&1 &
+display -window root "$F" > /dev/null 2>&1 &
 }
 
 # Llama a la función con el texto de ejemplo

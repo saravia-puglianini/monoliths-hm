@@ -156,7 +156,7 @@ case "$USER_INPUT" in
             ;;
     12|Volume_Control)
             export DISPLAY=:0
-            xterm -e 'alsamixer'
+            st -e alsamixer
             ;;
     13|Silence_Beeps)
             doas rmmod pcspkr

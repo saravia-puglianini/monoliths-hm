@@ -279,6 +279,10 @@ if [ -z "$PARAM" ]; then
     echo '696) audio-qa-test - Ejecutar suite de pruebas QA Audio interactiva'
     echo '697) audio-stop / detener-todos-los-modulos-de-audio - Detener y descargar todos los módulos y procesos de audio'
     echo '698) comprimir-subir-demo - Comprimir blob, optime, bloat y subir a demo:~/public/ con st'
+    echo '699) abrir_antigravity-ide_xpra - Abrir Antigravity IDE dentro de una pestaña de Chrome mediante Xpra'
+    echo '700) abrir_chatgpt_xpra - Abrir ChatGPT/Codex dentro de una pestaña de Chrome mediante Xpra'
+    echo '701) abrir_emacs_xpra - Abrir Emacs dentro de una pestaña de Chrome mediante Xpra'
+    echo '702) abrir_gimp_xpra - Abrir GIMP dentro de una pestaña de Chrome mediante Xpra'
     echo ''
 fi
 
@@ -359,6 +363,62 @@ else
     printf 'Elige un número o escribe el comando: '
     read USER_INPUT
 fi
+
+abrir_aplicacion_xpra() {
+    XPRA_DISPLAY="$1"
+    XPRA_PORT="$2"
+    XPRA_CHILD="$3"
+    XPRA_RUNTIME_DIR="/tmp/xpra-runtime-$(id -u)"
+    # Xpra 3.0.3 falla al refrescar algunas regiones enviadas con codecs de
+    # video y deja contenido viejo en el canvas HTML5 ("canvas fantasma").
+    # En localhost preferimos RGB sin perdida: consume mas ancho de banda,
+    # pero cada region reemplaza exactamente los pixeles anteriores.
+    # Disable the broken auto-refresh path in Xpra 3.0.3.  RGB is already
+    # lossless, so an extra lossless refresh is unnecessary and this version
+    # crashes that callback when its options argument is None.
+    XPRA_URL="http://127.0.0.1:$XPRA_PORT/?keyboard_layout=es&encoding=rgb32&video=false&auto_refresh=0&v=20260826-7"
+    XPRA_HTML_ROOT="$HOME/monoliths-hm/xpra-html5"
+
+    mkdir -p "$XPRA_RUNTIME_DIR"
+    chmod 700 "$XPRA_RUNTIME_DIR"
+
+    if curl -fsSI "$XPRA_URL" 2>/dev/null | grep -q '^Server: Xpra-WebSocket-Server'; then
+        setsid google-chrome-stable --new-tab "$XPRA_URL" >/dev/null 2>&1 &
+        return 0
+    fi
+
+    if curl -fsSI "$XPRA_URL" >/dev/null 2>&1; then
+        echo "Error: el puerto $XPRA_PORT está ocupado por un servicio que no es Xpra." >&2
+        return 1
+    fi
+
+    XDG_RUNTIME_DIR="$XPRA_RUNTIME_DIR" xpra start "$XPRA_DISPLAY" \
+        --daemon=yes \
+        --bind-tcp="127.0.0.1:$XPRA_PORT" \
+        --html="$XPRA_HTML_ROOT" \
+        --dpi=96 \
+        --encoding=rgb \
+        --encodings=rgb \
+        --auto-refresh-delay=0 \
+        --mdns=no \
+        --notifications=no \
+        --pulseaudio=no \
+        --exit-with-children=yes \
+        --start-child="$XPRA_CHILD" || return 1
+
+    XPRA_ATTEMPT=0
+    while [ "$XPRA_ATTEMPT" -lt 20 ]; do
+        if curl -fsSI "$XPRA_URL" 2>/dev/null | grep -q '^Server: Xpra-WebSocket-Server'; then
+            setsid google-chrome-stable --new-tab "$XPRA_URL" >/dev/null 2>&1 &
+            return 0
+        fi
+        XPRA_ATTEMPT=$((XPRA_ATTEMPT + 1))
+        sleep 1
+    done
+
+    echo "Error: Xpra no respondió en $XPRA_URL. Revisa $XPRA_RUNTIME_DIR/xpra/$XPRA_DISPLAY.log" >&2
+    return 1
+}
 
 case "$USER_INPUT" in
     1|Configurar_Resolucion)
@@ -459,7 +519,7 @@ case "$USER_INPUT" in
         ;;
     12|Control_Volumen)
 	export DISPLAY=:0
-        xterm -e 'alsamixer'
+        st -e alsamixer
         ;;
     13|Silenciar_Pitos)
         doas rmmod pcspkr
@@ -1474,6 +1534,18 @@ EOF
     698|comprimir-subir-demo|comprimir_y_subir_demo|comprimir_y_subir_demo.sh)
 	export DISPLAY=:0
 	st -e bash $HOME/monoliths-llm/comprimir_y_subir_demo.sh
+	;;
+    699|abrir_antigravity-ide_xpra|abrrir_antigravity-ide_xpra)
+	abrir_aplicacion_xpra :101 14501 /opt/Antigravity-IDE/antigravity-ide
+	;;
+    700|abrir_chatgpt_xpra)
+	abrir_aplicacion_xpra :102 14502 /usr/local/bin/chatgpt
+	;;
+    701|abrir_emacs_xpra)
+	abrir_aplicacion_xpra :103 14503 /usr/bin/emacs
+	;;
+    702|abrir_gimp_xpra)
+	abrir_aplicacion_xpra :104 14504 '/usr/bin/gimp --new-instance'
 	;;
     *)
 	echo 'Opción no mapeada.'

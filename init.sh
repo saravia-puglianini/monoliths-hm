@@ -114,7 +114,7 @@ fi
 
 # xbattmon &
 
-xterm -fa Monospace -bg white -fg black -xrm 'XTerm*color0: white' -xrm 'XTerm*color7: black' -e 'dash $HOME/monoliths-llm/enfriar-asus.sh' &
+st -e dash $HOME/monoliths-llm/enfriar-asus.sh &
 
 # Loop principal de menú
 while true; do
@@ -148,7 +148,7 @@ while true; do
                $HOME/monoliths-hm/input-keyboard.png de 'Teclas Deutsch' \
                $HOME/monoliths-hm/input-keyboard.png es 'Teclas Spain' \
                $HOME/monoliths-hm/input-keyboard.png us 'Teclas US' \
-               $HOME/monoliths-hm/input-keyboard.png terminal 'Lxterminal' \
+               $HOME/monoliths-hm/input-keyboard.png terminal 'Simple Terminal (st)' \
                $HOME/monoliths-hm/input-keyboard.png antigravity 'Antigravity' \
                $HOME/monoliths-hm/media-playlist-add.png luz_para_oscuro 'Optimizar luz pantalla' \
                $HOME/monoliths-hm/media-playlist-add.png luz_para_claro 'Optimizar luz pantalla' \
@@ -218,7 +218,7 @@ while true; do
             fi
             ;;
         volume)
-            xterm -fa Monospace -bg white -fg black -xrm 'XTerm*color0: white' -xrm 'XTerm*color7: black'  -e 'alsamixer -c 0 -V all' &
+            st -e alsamixer -c 0 -V all &
             ;;
         ppf_fe)
 	    if cat ~/amd64gnu+linux/front-end.sh | grep 'MODO="mock"' > /dev/null && \
@@ -230,10 +230,10 @@ while true; do
 		    --width=350 \
 		    --button="Aceptar:0"
 	    else
-		xterm -fa Monospace -bg white -fg black -xrm 'XTerm*color0: white' -xrm 'XTerm*color7: black'  -e 'doas openfortivpn -c ~/.ofv.conf' &
+		st -e doas openfortivpn -c ~/.ofv.conf &
 	    fi
-            xterm -fa Monospace -bg white -fg black -xrm 'XTerm*color0: white' -xrm 'XTerm*color7: black'  -e 'cd ; cd amd64gnu+linux ; dash pandero-portal-frontend.sh' &
-            xterm -fa Monospace -bg white -fg black -xrm 'XTerm*color0: white' -xrm 'XTerm*color7: black'  -e 'cd ; cd amd64gnu+linux ; dash front-end.sh' &
+            st -e sh -c 'cd ~/amd64gnu+linux && dash pandero-portal-frontend.sh' &
+            st -e sh -c 'cd ~/amd64gnu+linux && dash front-end.sh' &
             ;;
         mute_unmute_literatura)
             if [ -f $HOME/literatura/script-literatura.sh ]; then
@@ -388,7 +388,7 @@ while true; do
             mkdir -p $HOME/.firefox-looker-jira-profile && firefox --profile $HOME/.firefox-looker-jira-profile &
             ;;
         red_interna)
-            xterm -fa Monospace -bg white -fg black -xrm 'XTerm*color0: white' -xrm 'XTerm*color7: black'  -e 'doas openfortivpn -c ~/.ofv.conf' &
+            st -e doas openfortivpn -c ~/.ofv.conf &
             ;;
         teclas_rapidas)
             while true; do
@@ -505,10 +505,10 @@ while true; do
             dash $HOME/monoliths-llm/exercises_fast.sh
             ;;
         terminal)
-            lxterminal &
+            st &
             ;;
         antigravity)
-            xterm -fa Monospace -bg white -fg black -xrm 'XTerm*color0: white' -xrm 'XTerm*color7: black'  -e 'sudo apt update; sudo apt upgrade --yes'
+            st -e sh -c 'sudo apt update; sudo apt upgrade --yes'
             bash -c 'antigravity &'
             ;;
         touchpad_fast)

@@ -45,6 +45,16 @@ static const char *ascii_colon[8] = {
     "    ", " /$$", "|__/", "    ", " /$$", "|__/", "    ", "    "
 };
 
+static const char *weekdays_es[7] = {
+    "DOMINGO", "LUNES", "MARTES", "MIERCOLES",
+    "JUEVES", "VIERNES", "SABADO"
+};
+
+static const char *months_es[12] = {
+    "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+    "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
+};
+
 static int x11_silent_error_handler(Display *d, XErrorEvent *e) {
     (void)d;
     (void)e;
@@ -177,8 +187,8 @@ int main(void) {
     XSetErrorHandler(x11_silent_error_handler);
     Window root = DefaultRootWindow(dpy);
 
-    // Create top-right OSD (4 lines: line 0,1 blank, line 2: BAT TIME, line 3: MODE)
-    xosd *osd_top = xosd_create(4);
+    // Create top-right OSD: weekday, blank, date, blank, time and mode.
+    xosd *osd_top = xosd_create(6);
     if (!osd_top) {
         fprintf(stderr, "clock_osd: Cannot create top XOSD\n");
         XCloseDisplay(dpy);
@@ -257,8 +267,10 @@ int main(void) {
         // 2. Battery & Power
         int perc = read_sysfs_int("/sys/class/power_supply/BAT0/capacity");
         int online = read_sysfs_int("/sys/class/power_supply/ADP1/online");
+        int discharging_on_ac = online == 1 &&
+            file_contains("/sys/class/power_supply/BAT0/status", "Discharging");
         const char *bat_icon;
-        if (online == 1) {
+        if (online == 1 && !discharging_on_ac) {
             bat_icon = "AC";
         } else {
             if (perc >= 85) bat_icon = "[===]";
@@ -277,6 +289,10 @@ int main(void) {
         char line_top1[128];
         snprintf(line_top1, sizeof(line_top1), "%s %d%% %02d:%02d:%02d %s",
                  bat_icon, perc, hour12, tm_info.tm_min, tm_info.tm_sec, ampm);
+
+        char date_line[128];
+        snprintf(date_line, sizeof(date_line), "%d de %s del %d",
+                 tm_info.tm_mday, months_es[tm_info.tm_mon], tm_info.tm_year + 1900);
 
         // 4. Status modes and Color
         int xephyr_active = check_window_title_contains(dpy, root, "ctrl+shift releases");
@@ -303,8 +319,12 @@ int main(void) {
         }
 
         // Render Top OSD
-        xosd_display(osd_top, 2, XOSD_string, line_top1);
-        xosd_display(osd_top, 3, XOSD_string, mode_str);
+        xosd_display(osd_top, 0, XOSD_string, weekdays_es[tm_info.tm_wday]);
+        xosd_display(osd_top, 1, XOSD_string, "");
+        xosd_display(osd_top, 2, XOSD_string, date_line);
+        xosd_display(osd_top, 3, XOSD_string, "");
+        xosd_display(osd_top, 4, XOSD_string, line_top1);
+        xosd_display(osd_top, 5, XOSD_string, mode_str);
         xosd_show(osd_top);
         top_visible = 1;
 

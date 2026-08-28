@@ -167,7 +167,7 @@ OPCION=$(dialog --clear --title "Lista de opciones" --cancel-label "Salir" \
             ;;
         Control_Volumen)
             export DISPLAY=:0
-            xterm -e 'alsamixer'
+            st -e alsamixer
             ;;
         Silenciar_Pitos)
             doas rmmod pcspkr
