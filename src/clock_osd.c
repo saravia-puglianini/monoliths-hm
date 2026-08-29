@@ -162,7 +162,8 @@ static int check_window_title_contains(Display *dpy, Window root, const char *ne
     return 0;
 }
 
-
+#define FONT_NORMAL "-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1"
+#define FONT_LARGE  "-misc-dejavu sans mono-bold-r-normal--48-0-0-0-m-0-iso8859-1"
 
 int main(void) {
     const char *home = getenv("HOME");
@@ -187,18 +188,33 @@ int main(void) {
     XSetErrorHandler(x11_silent_error_handler);
     Window root = DefaultRootWindow(dpy);
 
-    // Create top-right OSD: weekday, blank, date, blank, time and mode.
-    xosd *osd_top = xosd_create(6);
-    if (!osd_top) {
+    // Create standard size OSD (6 lines)
+    xosd *osd_normal = xosd_create(6);
+    if (osd_normal) {
+        xosd_set_font(osd_normal, FONT_NORMAL);
+        xosd_set_pos(osd_normal, XOSD_top);
+        xosd_set_align(osd_normal, XOSD_right);
+        xosd_set_horizontal_offset(osd_normal, 50);
+        xosd_set_shadow_offset(osd_normal, 1);
+        xosd_set_timeout(osd_normal, -1);
+    }
+
+    // Create 4x larger monospace size OSD (4 lines: compact and prominent for large font)
+    xosd *osd_large = xosd_create(4);
+    if (osd_large) {
+        xosd_set_font(osd_large, FONT_LARGE);
+        xosd_set_pos(osd_large, XOSD_top);
+        xosd_set_align(osd_large, XOSD_right);
+        xosd_set_horizontal_offset(osd_large, 30);
+        xosd_set_shadow_offset(osd_large, 3);
+        xosd_set_timeout(osd_large, -1);
+    }
+
+    if (!osd_normal && !osd_large) {
         fprintf(stderr, "clock_osd: Cannot create top XOSD\n");
         XCloseDisplay(dpy);
         return 1;
     }
-    xosd_set_pos(osd_top, XOSD_top);
-    xosd_set_align(osd_top, XOSD_right);
-    xosd_set_horizontal_offset(osd_top, 50);
-    xosd_set_shadow_offset(osd_top, 1);
-    xosd_set_timeout(osd_top, -1); // Persistent
 
     // Create bottom-right big ascii OSD (8 lines)
     xosd *osd_bottom = xosd_create(8);
@@ -214,7 +230,7 @@ int main(void) {
 
     int last_root_x = -1, last_root_y = -1;
     time_t last_move_time = time(NULL);
-    const int IDLE_LIMIT = 100; // 100 seconds idle for big clock
+    const int IDLE_LIMIT = 100; // 100 seconds idle for big ascii clock
 
     char last_color[32] = "";
     int top_visible = 0;
@@ -227,35 +243,38 @@ int main(void) {
             XNextEvent(dpy, &ev);
         }
 
+        // 1. Mouse query for motion & idle detection
+        Window root_ret, child_ret;
+        int root_x, root_y, win_x, win_y;
+        unsigned int mask;
+        int mouse_moved_now = 0;
+        if (XQueryPointer(dpy, root, &root_ret, &child_ret, &root_x, &root_y, &win_x, &win_y, &mask)) {
+            if (last_root_x != -1 && (root_x != last_root_x || root_y != last_root_y)) {
+                mouse_moved_now = 1;
+                last_move_time = time(NULL);
+            }
+            last_root_x = root_x;
+            last_root_y = root_y;
+        }
+
+        time_t now = time(NULL);
+        int idle_sec = (int)(now - last_move_time);
+        int is_idle = (idle_sec >= IDLE_LIMIT);
+
         // Check if stopped
         if (access(stop_file, F_OK) == 0) {
             if (top_visible) {
-                xosd_hide(osd_top);
+                if (osd_normal) xosd_hide(osd_normal);
+                if (osd_large) xosd_hide(osd_large);
                 top_visible = 0;
             }
             if (bottom_visible && osd_bottom) {
                 xosd_hide(osd_bottom);
                 bottom_visible = 0;
             }
-            usleep(200000); // 200ms
+            usleep(60000);
             continue;
         }
-
-        // 1. Mouse query for idle detection
-        Window root_ret, child_ret;
-        int root_x, root_y, win_x, win_y;
-        unsigned int mask;
-        if (XQueryPointer(dpy, root, &root_ret, &child_ret, &root_x, &root_y, &win_x, &win_y, &mask)) {
-            if (root_x != last_root_x || root_y != last_root_y) {
-                last_root_x = root_x;
-                last_root_y = root_y;
-                last_move_time = time(NULL);
-            }
-        }
-
-        time_t now = time(NULL);
-        int idle_sec = (int)(now - last_move_time);
-        int is_idle = (idle_sec >= IDLE_LIMIT);
 
         if (is_idle) {
             int fd = open(big_hour_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -264,7 +283,7 @@ int main(void) {
             unlink(big_hour_file);
         }
 
-        // 2. Battery & Power
+        // 2. Battery & Power with [===], [==.], [=..], [...]
         int perc = read_sysfs_int("/sys/class/power_supply/BAT0/capacity");
         int online = read_sysfs_int("/sys/class/power_supply/ADP1/online");
         int discharging_on_ac = online == 1 &&
@@ -274,9 +293,9 @@ int main(void) {
             bat_icon = "AC";
         } else {
             if (perc >= 85) bat_icon = "[===]";
-            else if (perc >= 40) bat_icon = "[==-]";
-            else if (perc >= 15) bat_icon = "[=--]";
-            else bat_icon = "[---]";
+            else if (perc >= 40) bat_icon = "[==.]";
+            else if (perc >= 15) bat_icon = "[=..]";
+            else bat_icon = "[...]";
         }
 
         // 3. Time formatting (12h format with a.m./p.m.)
@@ -313,19 +332,30 @@ int main(void) {
 
         // Apply color change if needed
         if (strcmp(last_color, color) != 0) {
-            xosd_set_colour(osd_top, color);
+            if (osd_normal) xosd_set_colour(osd_normal, color);
+            if (osd_large) xosd_set_colour(osd_large, color);
             if (osd_bottom) xosd_set_colour(osd_bottom, color);
             strncpy(last_color, color, sizeof(last_color) - 1);
         }
 
-        // Render Top OSD
-        xosd_display(osd_top, 0, XOSD_string, weekdays_es[tm_info.tm_wday]);
-        xosd_display(osd_top, 1, XOSD_string, "");
-        xosd_display(osd_top, 2, XOSD_string, date_line);
-        xosd_display(osd_top, 3, XOSD_string, "");
-        xosd_display(osd_top, 4, XOSD_string, line_top1);
-        xosd_display(osd_top, 5, XOSD_string, mode_str);
-        xosd_show(osd_top);
+        // Active OSD selection based on mouse movement (4x larger exactly while moving)
+        if (mouse_moved_now && osd_large) {
+            if (osd_normal) xosd_hide(osd_normal);
+            xosd_display(osd_large, 0, XOSD_string, weekdays_es[tm_info.tm_wday]);
+            xosd_display(osd_large, 1, XOSD_string, date_line);
+            xosd_display(osd_large, 2, XOSD_string, line_top1);
+            xosd_display(osd_large, 3, XOSD_string, mode_str);
+            xosd_show(osd_large);
+        } else if (osd_normal) {
+            if (osd_large) xosd_hide(osd_large);
+            xosd_display(osd_normal, 0, XOSD_string, weekdays_es[tm_info.tm_wday]);
+            xosd_display(osd_normal, 1, XOSD_string, "");
+            xosd_display(osd_normal, 2, XOSD_string, date_line);
+            xosd_display(osd_normal, 3, XOSD_string, "");
+            xosd_display(osd_normal, 4, XOSD_string, line_top1);
+            xosd_display(osd_normal, 5, XOSD_string, mode_str);
+            xosd_show(osd_normal);
+        }
         top_visible = 1;
 
         // Render Bottom Big ASCII OSD if idle
@@ -359,13 +389,12 @@ int main(void) {
             bottom_visible = 0;
         }
 
-
-
         make_all_xosd_windows_sticky(dpy, root);
-        usleep(100000); // 100ms tick
+        usleep(60000); // 60ms tick for fluid response
     }
 
-    if (osd_top) xosd_destroy(osd_top);
+    if (osd_normal) xosd_destroy(osd_normal);
+    if (osd_large) xosd_destroy(osd_large);
     if (osd_bottom) xosd_destroy(osd_bottom);
     XCloseDisplay(dpy);
     return 0;

@@ -479,6 +479,11 @@ else
     start_emacs_managed
 fi
 
+# Servicio persistente Broadway Registro Diario (puerto 8085)
+if [ -f "$HOME/monoliths-llm/registro-diario-broadway-daemon.py" ]; then
+    (python3 "$HOME/monoliths-llm/registro-diario-broadway-daemon.py") &
+fi
+
 # Asus ZenBook específicas (enfriamiento y deskflow)
 if is_asus; then
     [ -f "$HOME/monoliths-llm/enfriar-asus.sh" ] && dash "$HOME/monoliths-llm/enfriar-asus.sh" &
